@@ -1,0 +1,7 @@
+.puzzle-cell {
+	padding: 1em;
+}
+
+.puzzle-cell-nonempty {
+	background-color: lightblue;
+}
