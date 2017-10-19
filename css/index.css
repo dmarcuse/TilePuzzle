@@ -1,7 +1,22 @@
 .puzzle-cell {
+	position: relative;
 	padding: 1em;
+
 }
 
 .puzzle-cell-nonempty {
 	background-color: lightblue;
+	animation-duration: 1s;
+}
+
+@keyframes slide {
+	to {
+		left: 0;
+		top: 0;
+	}
+}
+
+.puzzle-cell-animated {
+	animation: slide 500ms forwards;
+	z-index: 1;
 }
