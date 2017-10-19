@@ -1,25 +1,24 @@
 "use strict";
 
-import typescript from "rollup-plugin-typescript";
+import typescript from "rollup-plugin-typescript2";
 import commonjs from "rollup-plugin-commonjs";
-
-let tsconfig = require("./tsconfig.json").compilerOptions;
-
-delete tsconfig.module;
-tsconfig.typescript = require("typescript");
+import resolve from "rollup-plugin-node-resolve";
 
 export default {
-    input: "ts/Main.ts",
-    output: {
-        file: "dist/js/index.js",
-        format: "cjs"
-    },
+	input: "ts/Main.ts",
+	output: {
+		file: "dist/js/index.js",
+		format: "cjs"
+	},
 
 	banner: "// This is a bundle of compiled TypeScript code",
-    sourcemap: true,
+	sourcemap: true,
 
-    plugins: [
-        commonjs(),
-        typescript(tsconfig)
-    ]
+	plugins: [
+		resolve(),
+		commonjs(),
+		typescript({
+			tsconfig: "./tsconfig.json"
+		})
+	]
 }

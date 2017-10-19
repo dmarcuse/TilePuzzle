@@ -1,15 +1,9 @@
 import {HTMLPuzzle} from "./HTMLPuzzle";
 
-let p = new HTMLPuzzle(5);
-
-function showPuzzle(p: HTMLPuzzle) {
-	let w = document.querySelector("#puzzle-container");
-
-	if (w) {
-		while (w.hasChildNodes()) w.removeChild(w.lastChild);
-
-		w.appendChild(p.generateHTML());
-	}
-}
-
-document.addEventListener("DOMContentLoaded", () => showPuzzle(new HTMLPuzzle(4)));
+document.addEventListener("DOMContentLoaded", () => {
+	let p = new HTMLPuzzle(document.querySelector("table#puzzle"), 4);
+	p.renderTable();
+	
+	console.log(p.cellAt(p.findTile(0)));
+	console.log(p.cellAt(p.findTile(12)));
+});

@@ -1,10 +1,17 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "sourceMap": true
-  },
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es6",
+		"sourceMap": true,
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
+	},
+	"exclude": [
+		"node_modules"
+	]
 }

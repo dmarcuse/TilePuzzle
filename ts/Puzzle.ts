@@ -8,10 +8,6 @@ export class Puzzle {
 		return this.size * this.size;
 	}
 
-	public constructor(tiles: number[]);
-	public constructor(size: number);
-	public constructor(a: number[] | number);
-
 	public constructor(a: number[] | number) {
 		if (typeof(a) == "number") {
 			this.size = a;
