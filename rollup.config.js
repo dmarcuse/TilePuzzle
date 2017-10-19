@@ -8,7 +8,7 @@ export default {
 	input: "ts/Main.ts",
 	output: {
 		file: "dist/js/index.js",
-		format: "cjs"
+		format: "iife"
 	},
 
 	banner: "// This is a bundle of compiled TypeScript code",

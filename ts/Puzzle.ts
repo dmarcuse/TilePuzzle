@@ -43,12 +43,17 @@ export class Puzzle {
 		return out;
 	}
 
+	public checkBounds(p: Point): void {
+		if (p.x < 0 || p.x >= this.size) {
+			throw new RangeError(`x coordinate must be in range 0 <= x < ${this.size}`);
+		} else if (p.y < 0 || p.y >= this.size) {
+			throw new RangeError(`y coordinate must be in range 0 <= y < ${this.size}`);
+		}
+	}
+
 	public tileAt(p: Point): number {
-		let i = p.y * this.size + p.x;
-
-		if (i > this.sizesq) throw new RangeError(`No tile at point (${p.x}, ${p.y})`);
-
-		return this.tiles[i];
+		this.checkBounds(p);
+		return this.tiles[p.y * this.size + p.x];
 	}
 
 	public findTile(t: number): Point {
