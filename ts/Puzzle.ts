@@ -1,4 +1,5 @@
 import {padRight} from "./Utils";
+import _ from "lodash";
 
 export class Puzzle {
 	public tiles: number[];
@@ -83,6 +84,18 @@ export class Puzzle {
 		}
 	}
 
+	public validMoves(): Moves[] {
+		let p = this.findTile(0);
+		let valid = [];
+
+		if (p.y > 0) valid.push(Moves.UP);
+		if (p.x > 0) valid.push(Moves.LEFT);
+		if (p.y < this.size - 1) valid.push(Moves.DOWN);
+		if (p.x < this.size - 1) valid.push(Moves.RIGHT);
+
+		return valid;
+	}
+
 	public swapTiles(p1: Point, p2: Point) {
 		let t1 = this.tileAt(p1);
 		let t2 = this.tileAt(p2);
@@ -113,6 +126,22 @@ export class Puzzle {
 			case Moves.RIGHT:
 				this.swapTiles(p, {x: p.x + 1, y: p.y});
 				break;
+		}
+	}
+
+	public applyMoves(moves: Moves[]) {
+		for (let m of moves) {
+			this.move(m);
+		}
+	}
+
+	public shuffle(moves: number) {
+		let last: Moves;
+
+		for (let i = 0; i < moves; i++) {
+			let m = _.without(this.validMoves(), last);
+
+			this.move(last = m[Math.random() * m.length | 0]);
 		}
 	}
 }
