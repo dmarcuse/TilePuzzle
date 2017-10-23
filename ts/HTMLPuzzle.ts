@@ -1,4 +1,4 @@
-import {Puzzle, Point} from "./Puzzle";
+import {Puzzle, Point, Moves} from "./Puzzle";
 
 export class HTMLPuzzle extends Puzzle {
 	protected tbl: Element;
@@ -12,7 +12,24 @@ export class HTMLPuzzle extends Puzzle {
 		while (this.tbl.childElementCount > 0) this.tbl.removeChild(this.tbl.lastChild);
 	}
 
-	protected generateCell(t: number) {
+	protected generateListener(p: Point) {
+		return () => {
+			let pe = this.findTile(0);
+
+			if (pe.x == p.x && pe.y == p.y + 1 && this.canMove(Moves.UP)) {
+				this.move(Moves.UP);
+			} else if (pe.x == pe.x && pe.y == p.y - 1 && this.canMove(Moves.DOWN)) {
+				this.move(Moves.DOWN);
+			} else if (pe.x == p.x + 1 && pe.y == p.y && this.canMove(Moves.LEFT)) {
+				this.move(Moves.LEFT);
+			} else if (pe.x == p.x - 1 && pe.y == p.y && this.canMove(Moves.RIGHT)) {
+				this.move(Moves.RIGHT);
+			}
+		};
+	}
+
+	protected generateCell(p: Point) {
+		let t = this.tileAt({x: p.x, y: p.y});
 		let td = document.createElement("td");
 		td.className = "puzzle-cell";
 
@@ -22,6 +39,8 @@ export class HTMLPuzzle extends Puzzle {
 		} else {
 			td.className += " puzzle-cell-empty"
 		}
+
+		td.addEventListener("click", this.generateListener(p));
 
 		return td;
 	}
@@ -34,7 +53,7 @@ export class HTMLPuzzle extends Puzzle {
 			tr.className = "puzzle-row";
 
 			for (let x = 0; x < this.size; x++) {
-				tr.appendChild(this.generateCell(this.tileAt({x: x, y: y})));
+				tr.appendChild(this.generateCell({x: x, y: y}));
 			}
 
 			this.tbl.appendChild(tr);
