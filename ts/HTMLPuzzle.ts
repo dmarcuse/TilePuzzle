@@ -1,7 +1,9 @@
-import {Puzzle, Point, Moves} from "./Puzzle";
+import {Moves, Point, Puzzle} from "./Puzzle";
+import _ from "lodash";
 
 export class HTMLPuzzle extends Puzzle {
 	protected tbl: Element;
+	protected inputLocked = false;
 
 	public constructor(tbl: Element, a: number[] | number) {
 		super(a);
@@ -12,18 +14,24 @@ export class HTMLPuzzle extends Puzzle {
 		while (this.tbl.childElementCount > 0) this.tbl.removeChild(this.tbl.lastChild);
 	}
 
+	protected userMove(m: Moves) {
+		if (!this.inputLocked) {
+			this.move(m);
+		}
+	}
+
 	protected generateListener(p: Point) {
 		return () => {
 			let pe = this.findTile(0);
 
 			if (pe.x == p.x && pe.y == p.y + 1 && this.canMove(Moves.UP)) {
-				this.move(Moves.UP);
+				this.userMove(Moves.UP);
 			} else if (pe.x == pe.x && pe.y == p.y - 1 && this.canMove(Moves.DOWN)) {
-				this.move(Moves.DOWN);
+				this.userMove(Moves.DOWN);
 			} else if (pe.x == p.x + 1 && pe.y == p.y && this.canMove(Moves.LEFT)) {
-				this.move(Moves.LEFT);
+				this.userMove(Moves.LEFT);
 			} else if (pe.x == p.x - 1 && pe.y == p.y && this.canMove(Moves.RIGHT)) {
-				this.move(Moves.RIGHT);
+				this.userMove(Moves.RIGHT);
 			}
 		};
 	}
@@ -87,6 +95,16 @@ export class HTMLPuzzle extends Puzzle {
 		p2_cell.style.left = p2_cell.clientWidth * -offset.x + "px";
 		p2_cell.style.top = p2_cell.clientWidth * -offset.y + "px";
 		p2_cell.className += " puzzle-cell-animated";
+	}
 
+	public applyMoves(moves: Moves[]) {
+		this.inputLocked = true;
+		this.move(moves[0]);
+
+		if (moves.length > 1) {
+			window.setTimeout(() => this.applyMoves(_.tail(moves)), 500);
+		} else {
+			this.inputLocked = false;
+		}
 	}
 }

@@ -1,6 +1,8 @@
-import {padRight} from "./Utils";
 import _ from "lodash";
 
+/**
+ * Represents a square sliding tile puzzle of variable size
+ */
 export class Puzzle {
 	public tiles: number[];
 	public size: number;
@@ -24,6 +26,9 @@ export class Puzzle {
 		}
 	}
 
+	/**
+	 * Creates a visual representation of this puzzle
+	 */
 	public toString(): string {
 		let out = "";
 
@@ -31,7 +36,7 @@ export class Puzzle {
 			if (this.tiles[i] == 0) {
 				out += "   ";
 			} else {
-				out += padRight(this.tiles[i] + "", 3);
+				out += _.pad(this.tiles[i] + "", 3);
 			}
 
 			if (i % this.size == this.size - 1) {
@@ -44,6 +49,10 @@ export class Puzzle {
 		return out;
 	}
 
+	/**
+	 * Checks whether a given point is within the bounds of this puzzle
+	 * @param {Point} p
+	 */
 	public checkBounds(p: Point): void {
 		if (p.x < 0 || p.x >= this.size) {
 			throw new RangeError(`x coordinate must be in range 0 <= x < ${this.size}`);
@@ -52,11 +61,21 @@ export class Puzzle {
 		}
 	}
 
+	/**
+	 * Gets the tile at the given point
+	 * @param {Point} p
+	 * @returns {number} The number of the tile - 0 represents an empty tile
+	 */
 	public tileAt(p: Point): number {
 		this.checkBounds(p);
 		return this.tiles[p.y * this.size + p.x];
 	}
 
+	/**
+	 * Finds the position of a given tile
+	 * @param {number} t The tile to search for - 0 represents an empty tile
+	 * @returns {Point} The position of the first matching tile found
+	 */
 	public findTile(t: number): Point {
 		for (let i = 0; i < this.sizesq; i++) {
 			if (this.tiles[i] == t) {
@@ -67,6 +86,11 @@ export class Puzzle {
 		throw new RangeError(`Tile ${t} not present`);
 	}
 
+	/**
+	 * Checks if a given move is valid for the current state of the puzzle
+	 * @param {Moves} m
+	 * @returns {boolean}
+	 */
 	public canMove(m: Moves): boolean {
 		let p = this.findTile(0);
 
@@ -84,6 +108,10 @@ export class Puzzle {
 		}
 	}
 
+	/**
+	 * Gets an array of valid moves for the current state of the puzzle
+	 * @returns {Moves[]}
+	 */
 	public validMoves(): Moves[] {
 		let p = this.findTile(0);
 		let valid = [];
@@ -96,6 +124,11 @@ export class Puzzle {
 		return valid;
 	}
 
+	/**
+	 * Swaps two tiles in the puzzle
+	 * @param {Point} p1
+	 * @param {Point} p2
+	 */
 	public swapTiles(p1: Point, p2: Point) {
 		let t1 = this.tileAt(p1);
 		let t2 = this.tileAt(p2);
@@ -108,6 +141,10 @@ export class Puzzle {
 		this.tiles[p2.y * this.size + p2.x] = t2;
 	}
 
+	/**
+	 * Performs a given move on this puzzle, throwing an error if it's not possible
+	 * @param {Moves} m
+	 */
 	public move(m: Moves) {
 		if (!this.canMove(m)) throw new Error(`Illegal move ${m}`);
 
@@ -129,12 +166,20 @@ export class Puzzle {
 		}
 	}
 
+	/**
+	 * Applies a series of moves to this puzzle
+	 * @param {Moves[]} moves
+	 */
 	public applyMoves(moves: Moves[]) {
 		for (let m of moves) {
 			this.move(m);
 		}
 	}
 
+	/**
+	 * Shuffles this puzzle, applying a given number of random moves
+	 * @param {number} moves
+	 */
 	public shuffle(moves: number) {
 		let last: Moves;
 
