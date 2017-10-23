@@ -20,3 +20,7 @@
 	animation: slide 500ms forwards;
 	z-index: 1;
 }
+
+#buttons * {
+	margin: 1em;
+}
