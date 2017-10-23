@@ -65,20 +65,27 @@ export class HTMLPuzzle extends Puzzle {
 		return this.tbl.querySelectorAll("tr")[p.y].querySelectorAll("td")[p.x];
 	}
 
+	public updateCell(p: Point) {
+		let old = this.cellAt(p);
+		let updated = this.generateCell(p);
+
+		old.parentElement.replaceChild(updated, old);
+
+		return updated;
+	}
+
 	public swapTiles(p1: Point, p2: Point) {
 		super.swapTiles(p1, p2);
-		this.renderTable();
+		let offset = {x: p2.x - p1.x, y: p2.y - p1.y};
 
-		let off = {x: p2.x - p1.x, y: p2.y - p1.y};
-
-		let p1_cell = this.cellAt(p1);
-		p1_cell.style.left = p1_cell.clientWidth * off.x + "px";
-		p1_cell.style.top = p1_cell.clientHeight * off.y + "px";
+		let p1_cell = this.updateCell(p1);
+		p1_cell.style.left = p1_cell.clientWidth * offset.x + "px";
+		p1_cell.style.top = p1_cell.clientHeight * offset.y + "px";
 		p1_cell.className += " puzzle-cell-animated";
 
-		let p2_cell = this.cellAt(p2);
-		p2_cell.style.left = p2_cell.clientWidth * -off.x + "px";
-		p2_cell.style.top = p2_cell.clientWidth * -off.y + "px";
+		let p2_cell = this.updateCell(p2);
+		p2_cell.style.left = p2_cell.clientWidth * -offset.x + "px";
+		p2_cell.style.top = p2_cell.clientWidth * -offset.y + "px";
 		p2_cell.className += " puzzle-cell-animated";
 
 	}
