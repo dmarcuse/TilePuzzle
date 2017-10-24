@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.body.addEventListener("keydown", e => {
 		switch (e.key) {
 			case "ArrowDown":
-				if (p.canMove(Moves.DOWN)) p.userMove(Moves.UP);
+				if (p.canMove(Moves.UP)) p.userMove(Moves.UP);
 				break;
 			case "ArrowLeft":
 				if (p.canMove(Moves.RIGHT)) p.userMove(Moves.RIGHT);
