@@ -1,4 +1,4 @@
-import {Moves, Point, Puzzle} from "./Puzzle";
+import {Moves, Point, Puzzle} from "Puzzle";
 import _ from "lodash";
 
 export class HTMLPuzzle extends Puzzle {
@@ -14,7 +14,7 @@ export class HTMLPuzzle extends Puzzle {
 		while (this.tbl.childElementCount > 0) this.tbl.removeChild(this.tbl.lastChild);
 	}
 
-	protected userMove(m: Moves) {
+	public userMove(m: Moves) {
 		if (!this.inputLocked) {
 			this.move(m);
 		}

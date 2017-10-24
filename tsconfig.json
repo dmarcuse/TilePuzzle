@@ -10,7 +10,8 @@
 	"allowUnusedLabels": false,
 	"noUnusedLocals": true,
 	"noUnusedParameters": true,
-	"allowSyntheticDefaultImports": true
+	"allowSyntheticDefaultImports": true,
+	"baseUrl": "ts"
   },
   "exclude": [
 	"node_modules"
