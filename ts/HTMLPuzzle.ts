@@ -1,26 +1,49 @@
 import {Moves, Point, Puzzle} from "Puzzle";
 import _ from "lodash";
 
+/**
+ * A subclass of Puzzle that renders as HTML
+ */
 export class HTMLPuzzle extends Puzzle {
-	public readonly tbl: Element;
-	protected inputLocked = false;
+	/**
+	 * The root element for this puzzle
+	 */
+	public readonly root: Element;
 
-	public constructor(tbl: Element, a: number[] | number) {
+	/**
+	 * Whether user input is blocked (i.e. moves are being animated)
+	 * @type {boolean}
+	 */
+	protected inputBlocked = false;
+
+	public constructor(root: Element, a: number[] | number) {
 		super(a);
-		this.tbl = tbl;
+		this.root = root;
 	}
 
-	protected clearTable() {
-		while (this.tbl.childElementCount > 0) this.tbl.removeChild(this.tbl.lastChild);
+	/**
+	 * Clears all elements from the root element
+	 */
+	protected clear() {
+		while (this.root.childElementCount > 0) this.root.removeChild(this.root.lastChild);
 	}
 
+	/**
+	 * Applies a move if input is not blocked
+	 * @param {Moves} m
+	 */
 	public userMove(m: Moves) {
-		if (!this.inputLocked) {
+		if (!this.inputBlocked) {
 			this.move(m);
 		}
 	}
 
-	protected generateListener(p: Point) {
+	/**
+	 * Generates a click event listener function for a cell, so that when a cell is clicked it will be moved if possible
+	 * @param {Point} p
+	 * @returns {() => any}
+	 */
+	protected generateListener(p: Point): () => void {
 		return () => {
 			let pe = this.findTile(0);
 
@@ -36,11 +59,21 @@ export class HTMLPuzzle extends Puzzle {
 		};
 	}
 
-	protected generateCellText(t: number) {
+	/**
+	 * Generates the display text for a given tile number
+	 * @param {number} t
+	 * @returns {string}
+	 */
+	protected generateCellText(t: number): string {
 		return t.toString();
 	}
 
-	protected generateCell(p: Point) {
+	/**
+	 * Generates the HTML element representing a cell, complete with a click listener
+	 * @param {Point} p
+	 * @returns {HTMLDivElement}
+	 */
+	protected generateCell(p: Point): HTMLDivElement {
 		let t = this.tileAt({x: p.x, y: p.y});
 		let cell = document.createElement("div");
 		cell.className = "puzzle-cell";
@@ -57,8 +90,11 @@ export class HTMLPuzzle extends Puzzle {
 		return cell;
 	}
 
-	public renderTable() {
-		this.clearTable();
+	/**
+	 * Clears and redraws the puzzle from scratch
+	 */
+	public render() {
+		this.clear();
 
 		for (let y = 0; y < this.size; y++) {
 			let row = document.createElement("div");
@@ -68,15 +104,25 @@ export class HTMLPuzzle extends Puzzle {
 				row.appendChild(this.generateCell({x: x, y: y}));
 			}
 
-			this.tbl.appendChild(row);
+			this.root.appendChild(row);
 		}
 	}
 
-	public cellAt(p: Point) {
+	/**
+	 * Gets the HTML element for a given cell
+	 * @param {Point} p
+	 * @returns {Element}
+	 */
+	public cellAt(p: Point): HTMLDivElement {
 		this.checkBounds(p);
-		return this.tbl.querySelectorAll(".puzzle-row")[p.y].querySelectorAll(".puzzle-cell")[p.x];
+		return this.root.querySelectorAll(".puzzle-row")[p.y].querySelectorAll(".puzzle-cell")[p.x] as HTMLDivElement;
 	}
 
+	/**
+	 * Updates the given cell, redrawing it
+	 * @param {Point} p
+	 * @returns {HTMLDivElement}
+	 */
 	public updateCell(p: Point) {
 		let old = this.cellAt(p);
 		let updated = this.generateCell(p);
@@ -102,13 +148,13 @@ export class HTMLPuzzle extends Puzzle {
 	}
 
 	public applyMoves(moves: Moves[]) {
-		this.inputLocked = true;
+		this.inputBlocked = true;
 		this.move(moves[0]);
 
 		if (moves.length > 1) {
 			window.setTimeout(() => this.applyMoves(_.tail(moves)), 500);
 		} else {
-			this.inputLocked = false;
+			this.inputBlocked = false;
 		}
 	}
 }

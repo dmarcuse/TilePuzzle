@@ -26,7 +26,7 @@ function newPuzzle(tbl: Element): HTMLPuzzle {
 
 document.addEventListener("DOMContentLoaded", () => {
 	let p = newPuzzle(document.querySelector("div#puzzle"));
-	p.renderTable();
+	p.render();
 
 	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
 
@@ -48,8 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	function reset() {
-		p = newPuzzle(p.tbl);
-		p.renderTable();
+		p = newPuzzle(p.root);
+		p.render();
 	}
 
 	document.querySelector("#resetbtn").addEventListener("click", reset);

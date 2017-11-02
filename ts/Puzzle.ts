@@ -4,10 +4,21 @@ import _ from "lodash";
  * Represents a square sliding tile puzzle of variable size
  */
 export class Puzzle {
+	/**
+	 * The tiles (as a flattened array) of this puzzle
+	 */
 	public readonly tiles: number[];
+
+	/**
+	 * The size (side length) of this puzzle
+	 */
 	public readonly size: number;
 
-	public get sizesq(): number {
+	/**
+	 * Size squared
+	 * @returns {number}
+	 */
+	public get sizeSq(): number {
 		return this.size * this.size;
 	}
 
@@ -16,8 +27,8 @@ export class Puzzle {
 			this.size = a;
 			this.tiles = [];
 
-			for (let i = 0; i < this.sizesq; i++) {
-				this.tiles[i] = (i + 1) % (this.sizesq);
+			for (let i = 0; i < this.sizeSq; i++) {
+				this.tiles[i] = (i + 1) % (this.sizeSq);
 			}
 		} else {
 			this.size = Math.sqrt(a.length);
@@ -32,7 +43,7 @@ export class Puzzle {
 	public toString(): string {
 		let out = "";
 
-		for (let i = 0; i < this.sizesq; i++) {
+		for (let i = 0; i < this.sizeSq; i++) {
 			if (this.tiles[i] == 0) {
 				out += "   ";
 			} else {
@@ -77,7 +88,7 @@ export class Puzzle {
 	 * @returns {Point} The position of the first matching tile found
 	 */
 	public findTile(t: number): Point {
-		for (let i = 0; i < this.sizesq; i++) {
+		for (let i = 0; i < this.sizeSq; i++) {
 			if (this.tiles[i] == t) {
 				return {x: i % this.size, y: Math.floor(i / this.size)};
 			}

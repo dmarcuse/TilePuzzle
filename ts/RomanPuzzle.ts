@@ -21,6 +21,9 @@ function getRomanNumeral(n: number): string {
 	return out;
 }
 
+/**
+ * A subclass of HTMLPuzzle that uses Roman numerals instead of decimal
+ */
 export class RomanPuzzle extends HTMLPuzzle {
 	generateCellText(t: number): string {
 		return getRomanNumeral(t);
