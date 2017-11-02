@@ -1,8 +1,31 @@
-import {HTMLPuzzle} from "HTMLPuzzle";
 import {Moves} from "Puzzle";
+import {HTMLPuzzle} from "HTMLPuzzle";
+import {RomanPuzzle} from "RomanPuzzle";
+
+function newPuzzle(tbl: Element): HTMLPuzzle {
+	let styleSelector = document.querySelector("#style") as HTMLSelectElement;
+	let style = styleSelector.options[styleSelector.selectedIndex].value;
+
+
+	let sizeSelector = document.querySelector("#size") as HTMLSelectElement;
+	let size = parseInt(sizeSelector.options[sizeSelector.selectedIndex].value);
+
+	let p: HTMLPuzzle;
+	switch (style) {
+		case "roman":
+			p = new RomanPuzzle(tbl, size);
+			break;
+		case "standard":
+		default:
+			p = new HTMLPuzzle(tbl, size);
+			break;
+	}
+
+	return p;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-	let p = new HTMLPuzzle(document.querySelector("table#puzzle"), 4);
+	let p = newPuzzle(document.querySelector("div#puzzle"));
 	p.renderTable();
 
 	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
@@ -23,4 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
 				break;
 		}
 	});
+
+	function reset() {
+		p = newPuzzle(p.tbl);
+		p.renderTable();
+	}
+
+	document.querySelector("#resetbtn").addEventListener("click", reset);
+	document.querySelector("#style").addEventListener("change", reset);
+	document.querySelector("#size").addEventListener("change", reset);
 });

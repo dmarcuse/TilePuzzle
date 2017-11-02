@@ -4,8 +4,8 @@ import _ from "lodash";
  * Represents a square sliding tile puzzle of variable size
  */
 export class Puzzle {
-	public tiles: number[];
-	public size: number;
+	public readonly tiles: number[];
+	public readonly size: number;
 
 	public get sizesq(): number {
 		return this.size * this.size;

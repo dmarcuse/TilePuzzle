@@ -2,7 +2,7 @@ import {Moves, Point, Puzzle} from "Puzzle";
 import _ from "lodash";
 
 export class HTMLPuzzle extends Puzzle {
-	protected tbl: Element;
+	public readonly tbl: Element;
 	protected inputLocked = false;
 
 	public constructor(tbl: Element, a: number[] | number) {
@@ -36,41 +36,45 @@ export class HTMLPuzzle extends Puzzle {
 		};
 	}
 
+	protected generateCellText(t: number) {
+		return t.toString();
+	}
+
 	protected generateCell(p: Point) {
 		let t = this.tileAt({x: p.x, y: p.y});
-		let td = document.createElement("td");
-		td.className = "puzzle-cell";
+		let cell = document.createElement("div");
+		cell.className = "puzzle-cell";
 
+		cell.innerHTML = this.generateCellText(t);
 		if (t != 0) {
-			td.className += " puzzle-cell-nonempty";
-			td.innerHTML = "" + t;
+			cell.className += " puzzle-cell-nonempty";
 		} else {
-			td.className += " puzzle-cell-empty"
+			cell.className += " puzzle-cell-empty";
 		}
 
-		td.addEventListener("click", this.generateListener(p));
+		cell.addEventListener("click", this.generateListener(p));
 
-		return td;
+		return cell;
 	}
 
 	public renderTable() {
 		this.clearTable();
 
 		for (let y = 0; y < this.size; y++) {
-			let tr = document.createElement("tr");
-			tr.className = "puzzle-row";
+			let row = document.createElement("div");
+			row.className = "puzzle-row";
 
 			for (let x = 0; x < this.size; x++) {
-				tr.appendChild(this.generateCell({x: x, y: y}));
+				row.appendChild(this.generateCell({x: x, y: y}));
 			}
 
-			this.tbl.appendChild(tr);
+			this.tbl.appendChild(row);
 		}
 	}
 
 	public cellAt(p: Point) {
 		this.checkBounds(p);
-		return this.tbl.querySelectorAll("tr")[p.y].querySelectorAll("td")[p.x];
+		return this.tbl.querySelectorAll(".puzzle-row")[p.y].querySelectorAll(".puzzle-cell")[p.x];
 	}
 
 	public updateCell(p: Point) {
