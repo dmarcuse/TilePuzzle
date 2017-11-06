@@ -1,4 +1,4 @@
-import {Puzzle} from "./Puzzle";
+import {Puzzle, Moves} from "./Puzzle";
 import _ from "lodash";
 
 class PuzzleSet {
@@ -90,33 +90,21 @@ class PuzzleMapWithDefault<T> extends PuzzleMap<T> {
 	}
 }
 
-function reconstructPath(cameFrom: PuzzleMap<Puzzle>, current: Puzzle): Puzzle[] {
-	let totalPath = [current];
+function reconstructPath(cameFrom: PuzzleMap<Puzzle>, cameFromMoves: PuzzleMap<Moves>, current: Puzzle): Moves[] {
+	let totalPath = [];
 	while (cameFrom.containsKey(current)) {
+		totalPath.unshift(cameFromMoves.get(current));
+
 		current = cameFrom.get(current);
-		totalPath.push(current);
 	}
 	return totalPath;
-}
-
-function neighbors(p: Puzzle): Puzzle[] {
-	let out: Puzzle[] = [];
-	let moves = p.validMoves();
-
-	for (let m of moves) {
-		let n = new Puzzle(p.tiles);
-		n.move(m);
-		out.push(n);
-	}
-
-	return out;
 }
 
 /**
  * Solves a puzzle using A* search
  * @param {Puzzle} start
  */
-export function solve(start: Puzzle): Puzzle[] {
+export function solve(start: Puzzle): Moves[] {
 	start = new Puzzle(start.tiles);
 
 	// nodes already evaluated
@@ -127,6 +115,7 @@ export function solve(start: Puzzle): Puzzle[] {
 
 	// node => node that it can most easily be reached from
 	let cameFrom = new PuzzleMap<Puzzle>();
+	let cameFromMoves = new PuzzleMap<Moves>();
 
 	// node => cost to reach that node from start
 	let gScore = new PuzzleMapWithDefault<number>(Infinity);
@@ -139,12 +128,15 @@ export function solve(start: Puzzle): Puzzle[] {
 	while (openSet.length > 0) {
 		let current = _.first(_.sortBy(openSet.puzzles, p => fScore.get(p)));
 
-		if (current.isSolved()) return reconstructPath(cameFrom, current);
+		if (current.isSolved()) return reconstructPath(cameFrom, cameFromMoves, current);
 
 		openSet.remove(current);
 		closedSet.add(current);
 
-		for (let neighbor of neighbors(current)) {
+		for (let move of current.validMoves()) {
+			const neighbor = new Puzzle(current.tiles);
+			neighbor.move(move);
+
 			if (closedSet.contains(neighbor)) continue; // ignore already evaluated neighbors
 
 			if (!openSet.contains(neighbor)) openSet.add(neighbor); // discovered a new node
@@ -154,6 +146,7 @@ export function solve(start: Puzzle): Puzzle[] {
 			if (tentativeGScore > gScore.get(neighbor)) continue; // not a better path
 
 			cameFrom.put(neighbor, current);
+			cameFromMoves.put(neighbor, move);
 			gScore.put(neighbor, tentativeGScore);
 			fScore.put(neighbor, tentativeGScore + neighbor.solveHeuristic());
 		}

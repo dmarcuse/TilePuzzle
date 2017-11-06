@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
 	document.querySelector("#resetbtn").addEventListener("click", reset);
-	document.querySelector("#solvebtn").addEventListener("click", () => console.log(solve(p)));
+	document.querySelector("#solvebtn").addEventListener("click", () => p.applyMoves(solve(p)));
 	document.querySelector("#style").addEventListener("change", reset);
 	document.querySelector("#size").addEventListener("change", reset);
 });
