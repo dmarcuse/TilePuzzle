@@ -1,5 +1,8 @@
 import {Puzzle} from "Puzzle";
 
+/**
+ * A map of puzzles to a given type
+ */
 export class HashPuzzleMap<T> {
 	public map: { [hash: string]: T };
 
@@ -22,8 +25,19 @@ export class HashPuzzleMap<T> {
 	public get(p: Puzzle): T {
 		return this.map[this.hash(p)];
 	}
+
+	public remove(p: Puzzle): boolean {
+		return delete this.map[this.hash(p)];
+	}
+
+	public get length(): number {
+		return Object.keys(this.map).length;
+	}
 }
 
+/**
+ * A map of puzzles to a given type, with a given default value
+ */
 export class PuzzleMapWithDefault<T> extends HashPuzzleMap<T> {
 	public readonly defaultValue: T;
 

@@ -1,4 +1,5 @@
 import {Puzzle} from "Puzzle";
+import {HashPuzzleMap} from "./PuzzleMap";
 import _ from "lodash";
 
 /**
@@ -9,7 +10,7 @@ export interface PuzzleSet {
 
 	remove(p: Puzzle): boolean;
 
-	add(p: Puzzle): boolean;
+	add(p: Puzzle): void;
 
 	length: number;
 }
@@ -56,7 +57,7 @@ export class ArrayPuzzleSet implements PuzzleSet {
  * A sorted set of puzzles - sacrifices insertion efficiency for innate order
  */
 export class SortedPuzzleSet extends ArrayPuzzleSet {
-	public quantifier: (p: Puzzle) => number;
+	protected quantifier: (p: Puzzle) => number;
 
 	public constructor(quantifier: (p: Puzzle) => number, puzzles?: Puzzle[]) {
 		super(_.sortBy(puzzles, quantifier));
@@ -75,5 +76,39 @@ export class SortedPuzzleSet extends ArrayPuzzleSet {
 
 	public first(): Puzzle {
 		return this.puzzles[0];
+	}
+
+	public forceSort(): void {
+		this.puzzles = _.sortBy(this.puzzles, this.quantifier);
+	}
+}
+
+/**
+ * A set of puzzles backed internally by a HashPuzzleMap
+ * Faster to check if a value is contained
+ */
+export class HashPuzzleSet implements PuzzleSet {
+	protected map: HashPuzzleMap<boolean>;
+
+	public constructor(puzzles?: Puzzle[]) {
+		this.map = new HashPuzzleMap();
+
+		(puzzles || []).forEach(p => this.map.put(p, true));
+	}
+
+	public contains(p: Puzzle): boolean {
+		return this.map.containsKey(p);
+	}
+
+	public remove(p: Puzzle): boolean {
+		return this.map.remove(p);
+	}
+
+	public add(p: Puzzle): void {
+		this.map.put(p, true);
+	}
+
+	public get length(): number {
+		return this.map.length;
 	}
 }

@@ -1,6 +1,6 @@
 import {Puzzle, Moves} from "Puzzle";
-import {ArrayPuzzleSet, SortedPuzzleSet} from "Structures/PuzzleSet";
-import {HashPuzzleMap, PuzzleMapWithDefault} from "./Structures/PuzzleMap";
+import {SortedPuzzleSet, HashPuzzleSet} from "Structures/PuzzleSet";
+import {HashPuzzleMap, PuzzleMapWithDefault} from "Structures/PuzzleMap";
 
 function reconstructPath(cameFrom: HashPuzzleMap<Puzzle>, cameFromMoves: HashPuzzleMap<Moves>, current: Puzzle): Moves[] {
 	let totalPath = [];
@@ -21,7 +21,7 @@ export function solve(start: Puzzle): Moves[] {
 	start = new Puzzle(start.tiles);
 
 	// nodes already evaluated
-	let closedSet = new ArrayPuzzleSet();
+	let closedSet = new HashPuzzleSet();
 	
 	// node => node that it can most easily be reached from
 	let cameFrom = new HashPuzzleMap<Puzzle>();
@@ -59,8 +59,6 @@ export function solve(start: Puzzle): Moves[] {
 
 			if (closedSet.contains(neighbor)) continue; // ignore already evaluated neighbors
 
-			if (!openSet.contains(neighbor)) openSet.add(neighbor); // discovered a new node
-
 			let tentativeGScore = gScore.get(current) + 1;
 
 			if (tentativeGScore > gScore.get(neighbor)) continue; // not a better path
@@ -69,6 +67,8 @@ export function solve(start: Puzzle): Moves[] {
 			cameFromMoves.put(neighbor, move);
 			gScore.put(neighbor, tentativeGScore);
 			fScore.put(neighbor, tentativeGScore + neighbor.solveHeuristic());
+
+			if (!openSet.contains(neighbor)) openSet.add(neighbor); // discovered a new node
 		}
 
 		if (ops % 100 == 0) {

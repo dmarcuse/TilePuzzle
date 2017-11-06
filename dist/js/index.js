@@ -17097,9 +17097,6 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
-/**
- * Represents a square sliding tile puzzle of variable size
- */
 class Puzzle {
     /**
      * Size squared
@@ -17318,10 +17315,8 @@ var Moves;
     Moves[Moves["RIGHT"] = 2] = "RIGHT";
     Moves[Moves["LEFT"] = 3] = "LEFT";
 })(Moves || (Moves = {}));
+//# sourceMappingURL=Puzzle.js.map
 
-/**
- * A subclass of Puzzle that renders as HTML
- */
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
         super(a);
@@ -17456,6 +17451,7 @@ class HTMLPuzzle extends Puzzle {
         }
     }
 }
+//# sourceMappingURL=HTMLPuzzle.js.map
 
 const numerals = [
     [10, "X"],
@@ -17482,10 +17478,51 @@ class RomanPuzzle extends HTMLPuzzle {
         return getRomanNumeral(t);
     }
 }
+//# sourceMappingURL=RomanPuzzle.js.map
 
 /**
- * An unsorted set of puzzles
+ * A map of puzzles to a given type
  */
+class HashPuzzleMap {
+    constructor(map) {
+        this.map = map || {};
+    }
+    hash(p) {
+        return p.tiles.toString();
+    }
+    containsKey(p) {
+        return this.hash(p) in this.map;
+    }
+    put(p, t) {
+        this.map[this.hash(p)] = t;
+    }
+    get(p) {
+        return this.map[this.hash(p)];
+    }
+    remove(p) {
+        return delete this.map[this.hash(p)];
+    }
+    get length() {
+        return Object.keys(this.map).length;
+    }
+}
+/**
+ * A map of puzzles to a given type, with a given default value
+ */
+class PuzzleMapWithDefault extends HashPuzzleMap {
+    constructor(defaultValue, map) {
+        super(map);
+        this.defaultValue = defaultValue;
+    }
+    get(p) {
+        let got = super.get(p);
+        if (got == null)
+            return this.defaultValue;
+        return got;
+    }
+}
+//# sourceMappingURL=PuzzleMap.js.map
+
 class ArrayPuzzleSet {
     constructor(puzzles) {
         this.puzzles = puzzles || [];
@@ -17530,37 +17567,33 @@ class SortedPuzzleSet extends ArrayPuzzleSet {
     first() {
         return this.puzzles[0];
     }
-}
-
-class HashPuzzleMap {
-    constructor(map) {
-        this.map = map || {};
-    }
-    hash(p) {
-        return p.tiles.toString();
-    }
-    containsKey(p) {
-        return this.hash(p) in this.map;
-    }
-    put(p, t) {
-        this.map[this.hash(p)] = t;
-    }
-    get(p) {
-        return this.map[this.hash(p)];
+    forceSort() {
+        this.puzzles = lodash.sortBy(this.puzzles, this.quantifier);
     }
 }
-class PuzzleMapWithDefault extends HashPuzzleMap {
-    constructor(defaultValue, map) {
-        super(map);
-        this.defaultValue = defaultValue;
+/**
+ * A set of puzzles backed internally by a HashPuzzleMap
+ * Faster to check if a value is contained
+ */
+class HashPuzzleSet {
+    constructor(puzzles) {
+        this.map = new HashPuzzleMap();
+        (puzzles || []).forEach(p => this.map.put(p, true));
     }
-    get(p) {
-        let got = super.get(p);
-        if (got == null)
-            return this.defaultValue;
-        return got;
+    contains(p) {
+        return this.map.containsKey(p);
+    }
+    remove(p) {
+        return this.map.remove(p);
+    }
+    add(p) {
+        this.map.put(p, true);
+    }
+    get length() {
+        return this.map.length;
     }
 }
+//# sourceMappingURL=PuzzleSet.js.map
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
@@ -17578,7 +17611,7 @@ function reconstructPath(cameFrom, cameFromMoves, current) {
 function solve(start) {
     start = new Puzzle(start.tiles);
     // nodes already evaluated
-    let closedSet = new ArrayPuzzleSet();
+    let closedSet = new HashPuzzleSet();
     // node => node that it can most easily be reached from
     let cameFrom = new HashPuzzleMap();
     // complementary map, node => move to node it can be most easily reached from
@@ -17606,8 +17639,6 @@ function solve(start) {
             neighbor.move(move);
             if (closedSet.contains(neighbor))
                 continue; // ignore already evaluated neighbors
-            if (!openSet.contains(neighbor))
-                openSet.add(neighbor); // discovered a new node
             let tentativeGScore = gScore.get(current) + 1;
             if (tentativeGScore > gScore.get(neighbor))
                 continue; // not a better path
@@ -17615,6 +17646,8 @@ function solve(start) {
             cameFromMoves.put(neighbor, move);
             gScore.put(neighbor, tentativeGScore);
             fScore.put(neighbor, tentativeGScore + neighbor.solveHeuristic());
+            if (!openSet.contains(neighbor))
+                openSet.add(neighbor); // discovered a new node
         }
         if (ops % 100 == 0) {
             console.log(`Solving, ${ops} operations`);
@@ -17685,6 +17718,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#style").addEventListener("change", reset);
     document.querySelector("#size").addEventListener("change", reset);
 });
+//# sourceMappingURL=Main.js.map
 
 }());
 //# sourceMappingURL=index.js.map
