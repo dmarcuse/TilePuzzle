@@ -49,7 +49,7 @@ export async function solve(start: Puzzle): Promise<Moves[]> {
 		if (current.isSolved()) {
 			// solution found
 			let solution = reconstructPath(cameFrom, cameFromMoves, current);
-			console.log(`Solution (length ${solution.length} found after ${ops} operations`);
+			console.log(`Solution (length ${solution.length}) found after ${ops} operations`);
 			return solution
 		}
 

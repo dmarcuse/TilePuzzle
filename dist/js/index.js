@@ -17558,6 +17558,7 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
         return got;
     }
 }
+//# sourceMappingURL=PuzzleMap.js.map
 
 class ArrayPuzzleSet {
     constructor(puzzles) {
@@ -17664,7 +17665,7 @@ function solve(start) {
             if (current.isSolved()) {
                 // solution found
                 let solution = reconstructPath(cameFrom, cameFromMoves, current);
-                console.log(`Solution (length ${solution.length} found after ${ops} operations`);
+                console.log(`Solution (length ${solution.length}) found after ${ops} operations`);
                 return solution;
             }
             openSet.remove(current);
@@ -17695,7 +17696,6 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
-//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(tbl) {
     let styleSelector = document.querySelector("#style");
