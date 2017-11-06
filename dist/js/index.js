@@ -17560,51 +17560,14 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
 }
 //# sourceMappingURL=PuzzleMap.js.map
 
-class ArrayPuzzleSet {
-    constructor(puzzles) {
-        this.puzzles = puzzles || [];
-    }
-    contains(p) {
-        return lodash.some(this.puzzles, it => it.equals(p));
-    }
-    remove(p) {
-        return lodash.remove(this.puzzles, it => it.equals(p)).length > 0;
-    }
-    add(p) {
-        if (lodash.some(this.puzzles, it => it.equals(p))) {
-            return false;
-        }
-        this.puzzles.push(p);
-        return true;
-    }
-    get length() {
-        return this.puzzles.length;
-    }
-    get(i) {
-        if (i < 0 || i > this.length)
-            throw new RangeError(`Index ${i} is out of range`);
-        return this.puzzles[i];
-    }
-}
+/**
+ * An unsorted set of puzzles
+ */
+
 /**
  * A sorted set of puzzles - sacrifices insertion efficiency for innate order
  */
-class SortedPuzzleSet extends ArrayPuzzleSet {
-    constructor(quantifier, puzzles) {
-        super(lodash.sortBy(puzzles, quantifier));
-        this.quantifier = quantifier;
-    }
-    add(p) {
-        if (lodash.some(this.puzzles, it => it.equals(p))) {
-            return false;
-        }
-        this.puzzles.splice(lodash.sortedIndexBy(this.puzzles, p, this.quantifier), 0, p);
-        return true;
-    }
-    first() {
-        return this.puzzles[0];
-    }
-}
+
 /**
  * A set of puzzles backed internally by a HashPuzzleMap
  * Faster to check if a value is contained
@@ -17627,7 +17590,44 @@ class HashPuzzleSet {
         return this.map.length;
     }
 }
-//# sourceMappingURL=PuzzleSet.js.map
+/**
+ * A sorted set of puzzles that also uses a hash object for faster contains calls
+ */
+class SortedHashPuzzleSet {
+    constructor(quantifier, puzzles) {
+        this.locations = {};
+        this.puzzles = [];
+        this.quantifier = quantifier;
+        this.puzzles = lodash.sortBy(puzzles, p => quantifier(p));
+        this.puzzles.forEach(p => this.locations[p.hash()] = true);
+    }
+    contains(p) {
+        return p.hash() in this.locations;
+    }
+    add(p) {
+        if (this.contains(p))
+            return false;
+        const i = lodash.sortedIndexBy(this.puzzles, p, this.quantifier);
+        this.puzzles.splice(i, 0, p);
+        this.locations[p.hash()] = true;
+        return true;
+    }
+    remove(p) {
+        if (this.contains(p)) {
+            const hash = p.hash();
+            lodash.remove(this.puzzles, it => it.equals(p));
+            delete this.locations[hash];
+            return true;
+        }
+        return false;
+    }
+    first() {
+        return this.puzzles[0];
+    }
+    get length() {
+        return this.puzzles.length;
+    }
+}
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
@@ -17658,7 +17658,7 @@ function solve(start) {
         let fScore = new PuzzleMapWithDefault(Infinity);
         fScore.put(start, start.solveHeuristic());
         // discovered but unexplored nodes
-        let openSet = new SortedPuzzleSet(p => fScore.get(p), [start]);
+        let openSet = new SortedHashPuzzleSet(p => fScore.get(p), [start]);
         let ops = 0;
         while (openSet.length > 0) {
             let current = openSet.first();
@@ -17696,6 +17696,7 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
+//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(tbl) {
     let styleSelector = document.querySelector("#style");

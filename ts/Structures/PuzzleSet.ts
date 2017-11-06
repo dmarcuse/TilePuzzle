@@ -108,3 +108,52 @@ export class HashPuzzleSet implements PuzzleSet {
 		return this.map.length;
 	}
 }
+
+/**
+ * A sorted set of puzzles that also uses a hash object for faster contains calls
+ */
+export class SortedHashPuzzleSet implements PuzzleSet {
+	protected locations: { [hash: string]: boolean } = {};
+	protected puzzles: Puzzle[] = [];
+	protected quantifier: (p: Puzzle) => number;
+
+	public constructor(quantifier: (p: Puzzle) => number, puzzles?: Puzzle[]) {
+		this.quantifier = quantifier;
+		this.puzzles = _.sortBy(puzzles, p => quantifier(p));
+		this.puzzles.forEach(p => this.locations[p.hash()] = true);
+	}
+
+	public contains(p: Puzzle): boolean {
+		return p.hash() in this.locations;
+	}
+
+	public add(p: Puzzle): boolean {
+		if (this.contains(p)) return false;
+
+		const i = _.sortedIndexBy(this.puzzles, p, this.quantifier);
+		this.puzzles.splice(i, 0, p);
+		this.locations[p.hash()] = true;
+
+		return true;
+	}
+
+	public remove(p: Puzzle): boolean {
+		if (this.contains(p)) {
+			const hash = p.hash();
+			_.remove(this.puzzles, it => it.equals(p));
+			delete this.locations[hash];
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public first(): Puzzle {
+		return this.puzzles[0];
+	}
+
+	public get length(): number {
+		return this.puzzles.length;
+	}
+}

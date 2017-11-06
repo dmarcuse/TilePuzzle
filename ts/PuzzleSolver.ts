@@ -1,5 +1,5 @@
 import {Puzzle, Moves} from "Puzzle";
-import {SortedPuzzleSet, HashPuzzleSet} from "Structures/PuzzleSet";
+import {HashPuzzleSet, SortedHashPuzzleSet} from "Structures/PuzzleSet";
 import {HashPuzzleMap, PuzzleMapWithDefault} from "Structures/PuzzleMap";
 import _ from "lodash";
 
@@ -39,7 +39,7 @@ export async function solve(start: Puzzle): Promise<Moves[]> {
 	fScore.put(start, start.solveHeuristic());
 
 	// discovered but unexplored nodes
-	let openSet = new SortedPuzzleSet(p => fScore.get(p), [start]);
+	let openSet = new SortedHashPuzzleSet(p => fScore.get(p), [start]);
 
 	let ops = 0;
 
