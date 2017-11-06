@@ -1,6 +1,7 @@
 import {Puzzle, Moves} from "Puzzle";
 import {SortedPuzzleSet, HashPuzzleSet} from "Structures/PuzzleSet";
 import {HashPuzzleMap, PuzzleMapWithDefault} from "Structures/PuzzleMap";
+import _ from "lodash";
 
 function reconstructPath(cameFrom: HashPuzzleMap<Puzzle>, cameFromMoves: HashPuzzleMap<Moves>, current: Puzzle): Moves[] {
 	let totalPath = [];
@@ -18,11 +19,13 @@ function reconstructPath(cameFrom: HashPuzzleMap<Puzzle>, cameFromMoves: HashPuz
  * @param {Puzzle} start
  */
 export function solve(start: Puzzle): Moves[] {
+	const startTime = _.now();
+
 	start = new Puzzle(start.tiles);
 
 	// nodes already evaluated
 	let closedSet = new HashPuzzleSet();
-	
+
 	// node => node that it can most easily be reached from
 	let cameFrom = new HashPuzzleMap<Puzzle>();
 	// complementary map, node => move to node it can be most easily reached from
@@ -46,8 +49,9 @@ export function solve(start: Puzzle): Moves[] {
 
 		if (current.isSolved()) {
 			// solution found
-			console.log(`Solution found after ${ops} operations`);
-			return reconstructPath(cameFrom, cameFromMoves, current);
+			let solution = reconstructPath(cameFrom, cameFromMoves, current);
+			console.log(`Solution (length ${solution.length} found after ${ops} operations`);
+			return solution
 		}
 
 		openSet.remove(current);
@@ -73,10 +77,14 @@ export function solve(start: Puzzle): Moves[] {
 
 		if (ops % 100 == 0) {
 			console.log(`Solving, ${ops} operations`);
+
+			if (_.now() - startTime > 5 * 1000) {
+				throw new Error(`Maximum time exceeded (${ops} ops, ${_.now() - startTime} ms)`)
+			}
 		}
 
 		if (ops >= 10000) {
-			throw new Error(`Maximum operations exceeded (${ops})`);
+			throw new Error(`Maximum operations exceeded (${ops} ops, ${_.now() - startTime} ms)`);
 		}
 
 		ops++;
