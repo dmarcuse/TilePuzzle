@@ -17307,6 +17307,9 @@ class Puzzle {
         }
         return true;
     }
+    hash() {
+        return this.tiles.toString();
+    }
 }
 var Moves;
 (function (Moves) {
@@ -17480,6 +17483,43 @@ class RomanPuzzle extends HTMLPuzzle {
 }
 //# sourceMappingURL=RomanPuzzle.js.map
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+
+
+
+
+
+
+
+
+
+
+
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
 /**
  * A map of puzzles to a given type
  */
@@ -17487,20 +17527,17 @@ class HashPuzzleMap {
     constructor(map) {
         this.map = map || {};
     }
-    hash(p) {
-        return p.tiles.toString();
-    }
     containsKey(p) {
-        return this.hash(p) in this.map;
+        return p.hash() in this.map;
     }
     put(p, t) {
-        this.map[this.hash(p)] = t;
+        this.map[p.hash()] = t;
     }
     get(p) {
-        return this.map[this.hash(p)];
+        return this.map[p.hash()];
     }
     remove(p) {
-        return delete this.map[this.hash(p)];
+        return delete this.map[p.hash()];
     }
     get length() {
         return Object.keys(this.map).length;
@@ -17521,7 +17558,6 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
         return got;
     }
 }
-//# sourceMappingURL=PuzzleMap.js.map
 
 class ArrayPuzzleSet {
     constructor(puzzles) {
@@ -17567,9 +17603,6 @@ class SortedPuzzleSet extends ArrayPuzzleSet {
     first() {
         return this.puzzles[0];
     }
-    forceSort() {
-        this.puzzles = lodash.sortBy(this.puzzles, this.quantifier);
-    }
 }
 /**
  * A set of puzzles backed internally by a HashPuzzleMap
@@ -17608,61 +17641,61 @@ function reconstructPath(cameFrom, cameFromMoves, current) {
  * @param {Puzzle} start
  */
 function solve(start) {
-    const startTime = lodash.now();
-    start = new Puzzle(start.tiles);
-    // nodes already evaluated
-    let closedSet = new HashPuzzleSet();
-    // node => node that it can most easily be reached from
-    let cameFrom = new HashPuzzleMap();
-    // complementary map, node => move to node it can be most easily reached from
-    let cameFromMoves = new HashPuzzleMap();
-    // node => cost to reach that node from start
-    let gScore = new PuzzleMapWithDefault(Infinity);
-    gScore.put(start, 0);
-    // node => cost to reach end from that node (partially heuristic, partially known)
-    let fScore = new PuzzleMapWithDefault(Infinity);
-    fScore.put(start, start.solveHeuristic());
-    // discovered but unexplored nodes
-    let openSet = new SortedPuzzleSet(p => fScore.get(p), [start]);
-    let ops = 0;
-    while (openSet.length > 0) {
-        let current = openSet.first();
-        if (current.isSolved()) {
-            // solution found
-            let solution = reconstructPath(cameFrom, cameFromMoves, current);
-            console.log(`Solution (length ${solution.length} found after ${ops} operations`);
-            return solution;
-        }
-        openSet.remove(current);
-        closedSet.add(current);
-        for (let move of current.validMoves()) {
-            const neighbor = new Puzzle(current.tiles);
-            neighbor.move(move);
-            if (closedSet.contains(neighbor))
-                continue; // ignore already evaluated neighbors
-            let tentativeGScore = gScore.get(current) + 1;
-            if (tentativeGScore > gScore.get(neighbor))
-                continue; // not a better path
-            cameFrom.put(neighbor, current);
-            cameFromMoves.put(neighbor, move);
-            gScore.put(neighbor, tentativeGScore);
-            fScore.put(neighbor, tentativeGScore + neighbor.solveHeuristic());
-            if (!openSet.contains(neighbor))
-                openSet.add(neighbor); // discovered a new node
-        }
-        if (ops % 100 == 0) {
-            console.log(`Solving, ${ops} operations`);
-            if (lodash.now() - startTime > 5 * 1000) {
-                throw new Error(`Maximum time exceeded (${ops} ops, ${lodash.now() - startTime} ms)`);
+    return __awaiter(this, void 0, void 0, function* () {
+        const startTime = lodash.now();
+        start = new Puzzle(start.tiles);
+        // nodes already evaluated
+        let closedSet = new HashPuzzleSet();
+        // node => node that it can most easily be reached from
+        let cameFrom = new HashPuzzleMap();
+        // complementary map, node => move to node it can be most easily reached from
+        let cameFromMoves = new HashPuzzleMap();
+        // node => cost to reach that node from start
+        let gScore = new PuzzleMapWithDefault(Infinity);
+        gScore.put(start, 0);
+        // node => cost to reach end from that node (partially heuristic, partially known)
+        let fScore = new PuzzleMapWithDefault(Infinity);
+        fScore.put(start, start.solveHeuristic());
+        // discovered but unexplored nodes
+        let openSet = new SortedPuzzleSet(p => fScore.get(p), [start]);
+        let ops = 0;
+        while (openSet.length > 0) {
+            let current = openSet.first();
+            if (current.isSolved()) {
+                // solution found
+                let solution = reconstructPath(cameFrom, cameFromMoves, current);
+                console.log(`Solution (length ${solution.length} found after ${ops} operations`);
+                return solution;
             }
+            openSet.remove(current);
+            closedSet.add(current);
+            for (let move of current.validMoves()) {
+                const neighbor = new Puzzle(current.tiles);
+                neighbor.move(move);
+                if (closedSet.contains(neighbor))
+                    continue; // ignore already evaluated neighbors
+                let tentativeGScore = gScore.get(current) + 1;
+                if (tentativeGScore > gScore.get(neighbor))
+                    continue; // not a better path
+                cameFrom.put(neighbor, current);
+                cameFromMoves.put(neighbor, move);
+                gScore.put(neighbor, tentativeGScore);
+                fScore.put(neighbor, tentativeGScore + neighbor.solveHeuristic());
+                if (!openSet.contains(neighbor))
+                    openSet.add(neighbor); // discovered a new node
+            }
+            if (ops % 100 == 0) {
+                console.log(`Solving, ${ops} operations`);
+                if (lodash.now() - startTime > 5 * 1000) {
+                    throw new Error(`Solve failed - maximum time exceeded (${ops} ops, ${lodash.now() - startTime} ms)`);
+                }
+            }
+            ops++;
         }
-        if (ops >= 10000) {
-            throw new Error(`Maximum operations exceeded (${ops} ops, ${lodash.now() - startTime} ms)`);
-        }
-        ops++;
-    }
-    throw new Error(`Solving failed`);
+        throw new Error(`Solving failed - unsolvable`);
+    });
 }
+//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(tbl) {
     let styleSelector = document.querySelector("#style");
@@ -17708,19 +17741,15 @@ document.addEventListener("DOMContentLoaded", () => {
         p = newPuzzle(p.root);
         p.render();
     }
-    document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
     document.querySelector("#resetbtn").addEventListener("click", reset);
-    document.querySelector("#solvebtn").addEventListener("click", () => {
-        try {
-            p.applyMoves(solve(p));
-        }
-        catch (e) {
-            alert(`Unexpected error - ${e.toString()}`);
-            console.log(e);
-        }
-    });
     document.querySelector("#style").addEventListener("change", reset);
     document.querySelector("#size").addEventListener("change", reset);
+    document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
+    document.querySelector("#solvebtn").addEventListener("click", () => solve(p)
+        .then(m => p.applyMoves(m))
+        .catch(e => alert(e)));
+    // puzzle should start shuffled
+    window.setTimeout(() => p.shuffle(50), 750);
 });
 //# sourceMappingURL=Main.js.map
 
