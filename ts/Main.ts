@@ -1,6 +1,7 @@
 import {Moves} from "Puzzle";
 import {HTMLPuzzle} from "HTMLPuzzle";
 import {RomanPuzzle} from "RomanPuzzle";
+import {solve} from "PuzzleSolver";
 
 function newPuzzle(tbl: Element): HTMLPuzzle {
 	let styleSelector = document.querySelector("#style") as HTMLSelectElement;
@@ -28,8 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	let p = newPuzzle(document.querySelector("div#puzzle"));
 	p.render();
 
-	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
-
 	document.body.addEventListener("keydown", e => {
 		switch (e.key) {
 			case "ArrowDown":
@@ -52,7 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
 		p.render();
 	}
 
+	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
 	document.querySelector("#resetbtn").addEventListener("click", reset);
+	document.querySelector("#solvebtn").addEventListener("click", () => console.log(solve(p)));
 	document.querySelector("#style").addEventListener("change", reset);
 	document.querySelector("#size").addEventListener("change", reset);
 });

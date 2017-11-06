@@ -33,7 +33,7 @@ export class Puzzle {
 		} else {
 			this.size = Math.sqrt(a.length);
 			this.tiles = [];
-			Array.prototype.unshift.apply(this.tiles, a);
+			this.tiles.unshift(...a);
 		}
 	}
 
@@ -80,6 +80,15 @@ export class Puzzle {
 	public tileAt(p: Point): number {
 		this.checkBounds(p);
 		return this.tiles[p.y * this.size + p.x];
+	}
+
+	/**
+	 * Converts a tile index to coordinates
+	 * @param {number} i
+	 * @returns {Point}
+	 */
+	public idxToCoords(i: number): Point {
+		return {x: i % this.size, y: Math.floor(i / this.size)};
 	}
 
 	/**
@@ -199,6 +208,42 @@ export class Puzzle {
 
 			this.move(last = m[Math.random() * m.length | 0]);
 		}
+	}
+
+	/**
+	 * Checks if the puzzle is solved
+	 * @returns {boolean}
+	 */
+	public isSolved(): boolean {
+		for (let i = 0; i < this.tiles.length; i++) {
+			if (this.tiles[i] != (i + 1) % (this.sizeSq)) return false;
+		}
+
+		return true;
+	}
+
+	public solveHeuristic(): number {
+		let score = 0;
+
+		for (let i = 0; i < this.tiles.length; i++) {
+			let gotTile = this.tiles[i];
+			let wantTile = (i + 1) % this.sizeSq;
+
+			// TODO: maybe more effective to use distance between tiles?
+			if (gotTile != wantTile) score++;
+		}
+
+		return score;
+	}
+
+	public equals(p: Puzzle): boolean {
+		if (p.size != this.size) return false;
+
+		for (let i = 0; i < this.tiles.length; i++) {
+			if (this.tiles[i] != p.tiles[i]) return false;
+		}
+
+		return true;
 	}
 }
 
