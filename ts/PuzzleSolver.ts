@@ -102,6 +102,7 @@ function reconstructPath(cameFrom: PuzzleMap<Puzzle>, cameFromMoves: PuzzleMap<M
 
 /**
  * Solves a puzzle using A* search
+ * Horribly inefficient but it works
  * @param {Puzzle} start
  */
 export function solve(start: Puzzle): Moves[] {
@@ -115,6 +116,7 @@ export function solve(start: Puzzle): Moves[] {
 
 	// node => node that it can most easily be reached from
 	let cameFrom = new PuzzleMap<Puzzle>();
+	// complementary map, node => move to node it can be most easily reached from
 	let cameFromMoves = new PuzzleMap<Moves>();
 
 	// node => cost to reach that node from start
@@ -125,10 +127,16 @@ export function solve(start: Puzzle): Moves[] {
 	let fScore = new PuzzleMapWithDefault<number>(Infinity);
 	fScore.put(start, start.solveHeuristic());
 
+	let ops = 0;
+
 	while (openSet.length > 0) {
 		let current = _.first(_.sortBy(openSet.puzzles, p => fScore.get(p)));
 
-		if (current.isSolved()) return reconstructPath(cameFrom, cameFromMoves, current);
+		if (current.isSolved()) {
+			// solution found
+			console.log(`Solution found after ${ops} operations`);
+			return reconstructPath(cameFrom, cameFromMoves, current);
+		}
 
 		openSet.remove(current);
 		closedSet.add(current);
@@ -149,6 +157,14 @@ export function solve(start: Puzzle): Moves[] {
 			cameFromMoves.put(neighbor, move);
 			gScore.put(neighbor, tentativeGScore);
 			fScore.put(neighbor, tentativeGScore + neighbor.solveHeuristic());
+		}
+
+		if (ops % 100 == 0) {
+			console.log(`Solving, ${ops} operations`);
+		}
+
+		if (ops++ > 1500) {
+			throw new Error(`Maximum operations exceeded`);
 		}
 	}
 

@@ -149,7 +149,7 @@ export class HTMLPuzzle extends Puzzle {
 
 	public applyMoves(moves: Moves[]) {
 		if (moves.length <= 0) return;
-		
+
 		this.inputBlocked = true;
 		this.move(moves[0]);
 
