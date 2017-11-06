@@ -1,6 +1,9 @@
 import {Puzzle, Moves} from "./Puzzle";
 import _ from "lodash";
 
+/**
+ * An unsorted set of puzzles
+ */
 class PuzzleSet {
 	public puzzles: Puzzle[];
 
@@ -33,6 +36,32 @@ class PuzzleSet {
 		if (i < 0 || i > this.length) throw new RangeError(`Index ${i} is out of range`);
 
 		return this.puzzles[i];
+	}
+}
+
+/**
+ * A sorted set of puzzles - sacrifices insertion efficiency for an innate order
+ */
+class SortedPuzzleSet extends PuzzleSet {
+	public quantifier: (p: Puzzle) => number;
+
+	public constructor(quantifier: (p: Puzzle) => number, puzzles?: Puzzle[]) {
+		super(_.sortBy(puzzles, quantifier));
+
+		this.quantifier = quantifier;
+	}
+
+	public add(p: Puzzle): boolean {
+		if (_.some(this.puzzles, it => it.equals(p))) {
+			return false;
+		}
+
+		this.puzzles.splice(_.sortedIndexBy(this.puzzles, p, this.quantifier), 0, p);
+		return true;
+	}
+
+	public first(): Puzzle {
+		return this.puzzles[0];
 	}
 }
 
@@ -96,9 +125,6 @@ export function solve(start: Puzzle): Moves[] {
 	// nodes already evaluated
 	let closedSet = new PuzzleSet();
 
-	// discovered but unexplored nodes
-	let openSet = new PuzzleSet([start]);
-
 	// node => node that it can most easily be reached from
 	let cameFrom = new PuzzleMap<Puzzle>();
 	// complementary map, node => move to node it can be most easily reached from
@@ -112,10 +138,13 @@ export function solve(start: Puzzle): Moves[] {
 	let fScore = new PuzzleMapWithDefault<number>(Infinity);
 	fScore.put(start, start.solveHeuristic());
 
+	// discovered but unexplored nodes
+	let openSet = new SortedPuzzleSet(p => fScore.get(p), [start]);
+
 	let ops = 0;
 
 	while (openSet.length > 0) {
-		let current = _.first(_.sortBy(openSet.puzzles, p => fScore.get(p)));
+		let current = openSet.first();
 
 		if (current.isSolved()) {
 			// solution found
@@ -148,7 +177,7 @@ export function solve(start: Puzzle): Moves[] {
 			console.log(`Solving, ${ops} operations`);
 		}
 
-		if (ops > 10000) {
+		if (ops >= 4000) {
 			throw new Error(`Maximum operations exceeded (${ops})`);
 		}
 
