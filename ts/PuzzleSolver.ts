@@ -1,110 +1,8 @@
-import {Puzzle, Moves} from "./Puzzle";
-import _ from "lodash";
+import {Puzzle, Moves} from "Puzzle";
+import {ArrayPuzzleSet, SortedPuzzleSet} from "Structures/PuzzleSet";
+import {HashPuzzleMap, PuzzleMapWithDefault} from "./Structures/PuzzleMap";
 
-/**
- * An unsorted set of puzzles
- */
-class PuzzleSet {
-	public puzzles: Puzzle[];
-
-	public constructor(puzzles?: Puzzle[]) {
-		this.puzzles = puzzles || [];
-	}
-
-	public contains(p: Puzzle): boolean {
-		return _.some(this.puzzles, it => it.equals(p));
-	}
-
-	public remove(p: Puzzle): boolean {
-		return _.remove(this.puzzles, it => it.equals(p)).length > 0;
-	}
-
-	public add(p: Puzzle): boolean {
-		if (_.some(this.puzzles, it => it.equals(p))) {
-			return false;
-		}
-
-		this.puzzles.push(p);
-		return true;
-	}
-
-	public get length(): number {
-		return this.puzzles.length;
-	}
-
-	public get(i: number): Puzzle {
-		if (i < 0 || i > this.length) throw new RangeError(`Index ${i} is out of range`);
-
-		return this.puzzles[i];
-	}
-}
-
-/**
- * A sorted set of puzzles - sacrifices insertion efficiency for an innate order
- */
-class SortedPuzzleSet extends PuzzleSet {
-	public quantifier: (p: Puzzle) => number;
-
-	public constructor(quantifier: (p: Puzzle) => number, puzzles?: Puzzle[]) {
-		super(_.sortBy(puzzles, quantifier));
-
-		this.quantifier = quantifier;
-	}
-
-	public add(p: Puzzle): boolean {
-		if (_.some(this.puzzles, it => it.equals(p))) {
-			return false;
-		}
-
-		this.puzzles.splice(_.sortedIndexBy(this.puzzles, p, this.quantifier), 0, p);
-		return true;
-	}
-
-	public first(): Puzzle {
-		return this.puzzles[0];
-	}
-}
-
-class PuzzleMap<T> {
-	public map: { [hash: string]: T };
-
-	public constructor(map?: { [hash: string]: T }) {
-		this.map = map || {};
-	}
-
-	private hash(p: Puzzle): string {
-		return p.tiles.toString();
-	}
-
-	public containsKey(p: Puzzle): boolean {
-		return this.hash(p) in this.map;
-	}
-
-	public put(p: Puzzle, t: T): void {
-		this.map[this.hash(p)] = t;
-	}
-
-	public get(p: Puzzle): T {
-		return this.map[this.hash(p)];
-	}
-}
-
-class PuzzleMapWithDefault<T> extends PuzzleMap<T> {
-	public readonly defaultValue: T;
-
-	public constructor(defaultValue: T, map?: { [key: string]: T }) {
-		super(map);
-		this.defaultValue = defaultValue;
-	}
-
-	public get(p: Puzzle): T {
-		let got = super.get(p);
-		if (got == null) return this.defaultValue;
-		return got;
-	}
-}
-
-function reconstructPath(cameFrom: PuzzleMap<Puzzle>, cameFromMoves: PuzzleMap<Moves>, current: Puzzle): Moves[] {
+function reconstructPath(cameFrom: HashPuzzleMap<Puzzle>, cameFromMoves: HashPuzzleMap<Moves>, current: Puzzle): Moves[] {
 	let totalPath = [];
 	while (cameFrom.containsKey(current)) {
 		totalPath.unshift(cameFromMoves.get(current));
@@ -123,12 +21,12 @@ export function solve(start: Puzzle): Moves[] {
 	start = new Puzzle(start.tiles);
 
 	// nodes already evaluated
-	let closedSet = new PuzzleSet();
-
+	let closedSet = new ArrayPuzzleSet();
+	
 	// node => node that it can most easily be reached from
-	let cameFrom = new PuzzleMap<Puzzle>();
+	let cameFrom = new HashPuzzleMap<Puzzle>();
 	// complementary map, node => move to node it can be most easily reached from
-	let cameFromMoves = new PuzzleMap<Moves>();
+	let cameFromMoves = new HashPuzzleMap<Moves>();
 
 	// node => cost to reach that node from start
 	let gScore = new PuzzleMapWithDefault<number>(Infinity);
@@ -177,7 +75,7 @@ export function solve(start: Puzzle): Moves[] {
 			console.log(`Solving, ${ops} operations`);
 		}
 
-		if (ops >= 4000) {
+		if (ops >= 10000) {
 			throw new Error(`Maximum operations exceeded (${ops})`);
 		}
 
