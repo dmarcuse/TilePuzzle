@@ -17605,7 +17605,6 @@ function reconstructPath(cameFrom, cameFromMoves, current) {
 }
 /**
  * Solves a puzzle using A* search
- * Horribly inefficient but it works
  * @param {Puzzle} start
  */
 function solve(start) {

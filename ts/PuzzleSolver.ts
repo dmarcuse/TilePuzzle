@@ -15,7 +15,6 @@ function reconstructPath(cameFrom: HashPuzzleMap<Puzzle>, cameFromMoves: HashPuz
 
 /**
  * Solves a puzzle using A* search
- * Horribly inefficient but it works
  * @param {Puzzle} start
  */
 export function solve(start: Puzzle): Moves[] {
