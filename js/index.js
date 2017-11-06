@@ -17609,6 +17609,7 @@ function reconstructPath(cameFrom, cameFromMoves, current) {
  * @param {Puzzle} start
  */
 function solve(start) {
+    const startTime = lodash.now();
     start = new Puzzle(start.tiles);
     // nodes already evaluated
     let closedSet = new HashPuzzleSet();
@@ -17629,8 +17630,9 @@ function solve(start) {
         let current = openSet.first();
         if (current.isSolved()) {
             // solution found
-            console.log(`Solution found after ${ops} operations`);
-            return reconstructPath(cameFrom, cameFromMoves, current);
+            let solution = reconstructPath(cameFrom, cameFromMoves, current);
+            console.log(`Solution (length ${solution.length} found after ${ops} operations`);
+            return solution;
         }
         openSet.remove(current);
         closedSet.add(current);
@@ -17651,9 +17653,12 @@ function solve(start) {
         }
         if (ops % 100 == 0) {
             console.log(`Solving, ${ops} operations`);
+            if (lodash.now() - startTime > 5 * 1000) {
+                throw new Error(`Maximum time exceeded (${ops} ops, ${lodash.now() - startTime} ms)`);
+            }
         }
         if (ops >= 10000) {
-            throw new Error(`Maximum operations exceeded (${ops})`);
+            throw new Error(`Maximum operations exceeded (${ops} ops, ${lodash.now() - startTime} ms)`);
         }
         ops++;
     }
