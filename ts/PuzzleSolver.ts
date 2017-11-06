@@ -37,48 +37,33 @@ class PuzzleSet {
 }
 
 class PuzzleMap<T> {
-	public map: [Puzzle, T][];
+	public map: { [hash: string]: T };
 
-	public constructor(map?: [Puzzle, T][]) {
-		this.map = map || [];
+	public constructor(map?: { [hash: string]: T }) {
+		this.map = map || {};
+	}
+
+	private hash(p: Puzzle): string {
+		return p.tiles.toString();
 	}
 
 	public containsKey(p: Puzzle): boolean {
-		return _.some(this.map, it => it[0].equals(p));
-	}
-
-	public contains(t: T): boolean {
-		return _.some(this.map, it => it[1] === t);
+		return this.hash(p) in this.map;
 	}
 
 	public put(p: Puzzle, t: T): void {
-		for (let it of this.map) {
-			if (it[0].equals(p)) {
-				it[1] = t;
-				return;
-			}
-		}
-
-		this.map.push([p, t]);
+		this.map[this.hash(p)] = t;
 	}
 
 	public get(p: Puzzle): T {
-		for (let it of this.map) {
-			if (it[0].equals(p)) return it[1];
-		}
-
-		return undefined;
-	}
-
-	public remove(p: Puzzle): void {
-		_.remove(this.map, it => it[0].equals(p));
+		return this.map[this.hash(p)];
 	}
 }
 
 class PuzzleMapWithDefault<T> extends PuzzleMap<T> {
 	public readonly defaultValue: T;
 
-	public constructor(defaultValue: T, map?: [Puzzle, T][]) {
+	public constructor(defaultValue: T, map?: { [key: string]: T }) {
 		super(map);
 		this.defaultValue = defaultValue;
 	}
@@ -163,9 +148,11 @@ export function solve(start: Puzzle): Moves[] {
 			console.log(`Solving, ${ops} operations`);
 		}
 
-		if (ops++ > 1500) {
-			throw new Error(`Maximum operations exceeded`);
+		if (ops > 10000) {
+			throw new Error(`Maximum operations exceeded (${ops})`);
 		}
+
+		ops++;
 	}
 
 	throw new Error(`Solving failed`);
