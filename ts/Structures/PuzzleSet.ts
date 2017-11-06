@@ -77,10 +77,6 @@ export class SortedPuzzleSet extends ArrayPuzzleSet {
 	public first(): Puzzle {
 		return this.puzzles[0];
 	}
-
-	public forceSort(): void {
-		this.puzzles = _.sortBy(this.puzzles, this.quantifier);
-	}
 }
 
 /**

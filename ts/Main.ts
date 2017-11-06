@@ -51,16 +51,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		p.render();
 	}
 
-	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
 	document.querySelector("#resetbtn").addEventListener("click", reset);
-	document.querySelector("#solvebtn").addEventListener("click", () => {
-		try {
-			p.applyMoves(solve(p));
-		} catch (e) {
-			alert(`Unexpected error - ${e.toString()}`);
-			console.log(e);
-		}
-	});
 	document.querySelector("#style").addEventListener("change", reset);
 	document.querySelector("#size").addEventListener("change", reset);
+
+	document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
+
+	document.querySelector("#solvebtn").addEventListener("click", () => solve(p)
+		.then(m => p.applyMoves(m))
+		.catch(e => alert(e)));
+
+	// puzzle should start shuffled
+	window.setTimeout(() => p.shuffle(50), 750);
 });

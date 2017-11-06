@@ -17,7 +17,7 @@ function reconstructPath(cameFrom: HashPuzzleMap<Puzzle>, cameFromMoves: HashPuz
  * Solves a puzzle using A* search
  * @param {Puzzle} start
  */
-export function solve(start: Puzzle): Moves[] {
+export async function solve(start: Puzzle): Promise<Moves[]> {
 	const startTime = _.now();
 
 	start = new Puzzle(start.tiles);
@@ -78,16 +78,12 @@ export function solve(start: Puzzle): Moves[] {
 			console.log(`Solving, ${ops} operations`);
 
 			if (_.now() - startTime > 5 * 1000) {
-				throw new Error(`Maximum time exceeded (${ops} ops, ${_.now() - startTime} ms)`)
+				throw new Error(`Solve failed - maximum time exceeded (${ops} ops, ${_.now() - startTime} ms)`)
 			}
-		}
-
-		if (ops >= 10000) {
-			throw new Error(`Maximum operations exceeded (${ops} ops, ${_.now() - startTime} ms)`);
 		}
 
 		ops++;
 	}
 
-	throw new Error(`Solving failed`);
+	throw new Error(`Solving failed - unsolvable`);
 }

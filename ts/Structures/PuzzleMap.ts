@@ -10,24 +10,20 @@ export class HashPuzzleMap<T> {
 		this.map = map || {};
 	}
 
-	private hash(p: Puzzle): string {
-		return p.tiles.toString();
-	}
-
 	public containsKey(p: Puzzle): boolean {
-		return this.hash(p) in this.map;
+		return p.hash() in this.map;
 	}
 
 	public put(p: Puzzle, t: T): void {
-		this.map[this.hash(p)] = t;
+		this.map[p.hash()] = t;
 	}
 
 	public get(p: Puzzle): T {
-		return this.map[this.hash(p)];
+		return this.map[p.hash()];
 	}
 
 	public remove(p: Puzzle): boolean {
-		return delete this.map[this.hash(p)];
+		return delete this.map[p.hash()];
 	}
 
 	public get length(): number {

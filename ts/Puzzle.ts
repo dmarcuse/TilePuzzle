@@ -245,6 +245,10 @@ export class Puzzle {
 
 		return true;
 	}
+
+	public hash(): string {
+		return this.tiles.toString();
+	}
 }
 
 export interface Point {
