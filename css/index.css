@@ -29,6 +29,6 @@
 	z-index: 1;
 }
 
-#options * {
+#options, #options button {
 	margin: 0.3em;
 }
