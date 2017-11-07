@@ -17343,9 +17343,6 @@ var Moves;
 })(Moves || (Moves = {}));
 //# sourceMappingURL=Puzzle.js.map
 
-/**
- * A subclass of Puzzle that renders as HTML
- */
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
         super(a);
@@ -17480,6 +17477,7 @@ class HTMLPuzzle extends Puzzle {
         }
     }
 }
+//# sourceMappingURL=HTMLPuzzle.js.map
 
 const numerals = [
     [10, "X"],
@@ -17585,6 +17583,9 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
 }
 //# sourceMappingURL=PuzzleMap.js.map
 
+/**
+ * A set of puzzles backed internally by a HashPuzzleMap
+ */
 class HashPuzzleSet {
     constructor(puzzles) {
         this.map = new HashPuzzleMap();
@@ -17628,9 +17629,16 @@ class SortedHashPuzzleSet {
     remove(p) {
         if (this.contains(p)) {
             const hash = p.hash();
-            let i = lodash.sortedLastIndexBy(this.puzzles, p, this.quantifier) - 1;
-            while (!this.puzzles[i].equals(p))
-                i--;
+            let i;
+            if (this.puzzles[0].equals(p)) {
+                // sometimes elements end up at the start for some reason?
+                i = 0;
+            }
+            else {
+                i = Math.max(0, lodash.sortedIndexBy(this.puzzles, p, this.quantifier) - 1);
+                while (!this.puzzles[i].equals(p))
+                    i++;
+            }
             this.puzzles.splice(i, 1);
             delete this.hashes[hash];
             return true;
@@ -17644,7 +17652,6 @@ class SortedHashPuzzleSet {
         return this.puzzles.length;
     }
 }
-//# sourceMappingURL=PuzzleSet.js.map
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
