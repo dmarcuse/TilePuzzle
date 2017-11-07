@@ -222,6 +222,10 @@ export class Puzzle {
 		return true;
 	}
 
+	/**
+	 * A heuristic used by the solver to estimate how close to being solved this puzzle is
+	 * @returns {number}
+	 */
 	public solveHeuristic(): number {
 		let score = 0;
 
@@ -236,6 +240,11 @@ export class Puzzle {
 		return score;
 	}
 
+	/**
+	 * Checks whether this puzzle is equal to another (in state alone)
+	 * @param {Puzzle} p
+	 * @returns {boolean}
+	 */
 	public equals(p: Puzzle): boolean {
 		if (p.size != this.size) return false;
 
@@ -246,6 +255,10 @@ export class Puzzle {
 		return true;
 	}
 
+	/**
+	 * Generates a unique value for this puzzle state
+	 * @returns {string}
+	 */
 	public hash(): string {
 		return this.tiles.toString();
 	}

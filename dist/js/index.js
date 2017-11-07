@@ -17287,6 +17287,10 @@ class Puzzle {
         }
         return true;
     }
+    /**
+     * A heuristic used by the solver to estimate how close to being solved this puzzle is
+     * @returns {number}
+     */
     solveHeuristic() {
         let score = 0;
         for (let i = 0; i < this.tiles.length; i++) {
@@ -17298,6 +17302,11 @@ class Puzzle {
         }
         return score;
     }
+    /**
+     * Checks whether this puzzle is equal to another (in state alone)
+     * @param {Puzzle} p
+     * @returns {boolean}
+     */
     equals(p) {
         if (p.size != this.size)
             return false;
@@ -17307,6 +17316,10 @@ class Puzzle {
         }
         return true;
     }
+    /**
+     * Generates a unique value for this puzzle state
+     * @returns {string}
+     */
     hash() {
         return this.tiles.toString();
     }
@@ -17561,16 +17574,7 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
 //# sourceMappingURL=PuzzleMap.js.map
 
 /**
- * An unsorted set of puzzles
- */
-
-/**
- * A sorted set of puzzles - sacrifices insertion efficiency for innate order
- */
-
-/**
  * A set of puzzles backed internally by a HashPuzzleMap
- * Faster to check if a value is contained
  */
 class HashPuzzleSet {
     constructor(puzzles) {
@@ -17591,25 +17595,25 @@ class HashPuzzleSet {
     }
 }
 /**
- * A sorted set of puzzles that also uses a hash object for faster contains calls
+ * A sorted set of puzzles using both an array and hash for significant speed benefits
  */
 class SortedHashPuzzleSet {
     constructor(quantifier, puzzles) {
-        this.locations = {};
+        this.hashes = {};
         this.puzzles = [];
         this.quantifier = quantifier;
         this.puzzles = lodash.sortBy(puzzles, p => quantifier(p));
-        this.puzzles.forEach(p => this.locations[p.hash()] = true);
+        this.puzzles.forEach(p => this.hashes[p.hash()] = true);
     }
     contains(p) {
-        return p.hash() in this.locations;
+        return p.hash() in this.hashes;
     }
     add(p) {
         if (this.contains(p))
             return false;
         const i = lodash.sortedIndexBy(this.puzzles, p, this.quantifier);
         this.puzzles.splice(i, 0, p);
-        this.locations[p.hash()] = true;
+        this.hashes[p.hash()] = true;
         return true;
     }
     remove(p) {
@@ -17619,7 +17623,7 @@ class SortedHashPuzzleSet {
             while (!this.puzzles[i].equals(p))
                 i--;
             this.puzzles.splice(i, 1);
-            delete this.locations[hash];
+            delete this.hashes[hash];
             return true;
         }
         return false;
