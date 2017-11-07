@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "rollup -c",
     "dev": "rollup -cw"
   },
   "author": "Dominic Marcuse",
