@@ -17289,18 +17289,28 @@ class Puzzle {
     }
     /**
      * A heuristic used by the solver to estimate how close to being solved this puzzle is
+     * The lower the score the better
      * @returns {number}
      */
     solveHeuristic() {
         let score = 0;
         for (let i = 0; i < this.tiles.length; i++) {
-            let gotTile = this.tiles[i];
-            let wantTile = (i + 1) % this.sizeSq;
-            // TODO: maybe more effective to use distance between tiles?
-            if (gotTile != wantTile)
-                score++;
+            const gotTile = this.tiles[i];
+            const wantTile = (i + 1) % this.sizeSq;
+            if (gotTile == wantTile)
+                continue;
+            const wantX = i % this.size;
+            const wantY = Math.floor(i / this.size);
+            const gotI = (((gotTile - 1) % this.sizeSq) + this.sizeSq) % this.sizeSq;
+            const gotX = gotI % this.size;
+            const gotY = Math.floor(gotI / this.size);
+            //score += Math.sqrt(Math.pow(gotX - wantX, 2) + Math.pow(gotY - wantY, 2));
+            // using manhattan distance seems to yield better results than linear distance
+            score += Math.abs(gotX - wantX) + Math.abs(gotY - wantY);
         }
-        return score;
+        // divide by two because displacing one tile means another tile is also displaced, so the score will have been
+        // incremented twice
+        return score / 2;
     }
     /**
      * Checks whether this puzzle is equal to another (in state alone)
@@ -17573,9 +17583,6 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
 }
 //# sourceMappingURL=PuzzleMap.js.map
 
-/**
- * A set of puzzles backed internally by a HashPuzzleMap
- */
 class HashPuzzleSet {
     constructor(puzzles) {
         this.map = new HashPuzzleMap();
@@ -17635,6 +17642,7 @@ class SortedHashPuzzleSet {
         return this.puzzles.length;
     }
 }
+//# sourceMappingURL=PuzzleSet.js.map
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
@@ -17703,7 +17711,6 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
-//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(tbl) {
     let styleSelector = document.querySelector("#style");

@@ -224,20 +224,35 @@ export class Puzzle {
 
 	/**
 	 * A heuristic used by the solver to estimate how close to being solved this puzzle is
+	 * The lower the score the better
 	 * @returns {number}
 	 */
 	public solveHeuristic(): number {
 		let score = 0;
 
 		for (let i = 0; i < this.tiles.length; i++) {
-			let gotTile = this.tiles[i];
-			let wantTile = (i + 1) % this.sizeSq;
+			const gotTile = this.tiles[i];
+			const wantTile = (i + 1) % this.sizeSq;
 
-			// TODO: maybe more effective to use distance between tiles?
-			if (gotTile != wantTile) score++;
+			if (gotTile == wantTile) continue;
+
+			const wantX = i % this.size;
+			const wantY = Math.floor(i / this.size);
+
+			const gotI = (((gotTile - 1) % this.sizeSq) + this.sizeSq) % this.sizeSq;
+
+			const gotX = gotI % this.size;
+			const gotY = Math.floor(gotI / this.size);
+
+			//score += Math.sqrt(Math.pow(gotX - wantX, 2) + Math.pow(gotY - wantY, 2));
+
+			// using manhattan distance seems to yield better results than linear distance
+			score += Math.abs(gotX - wantX) + Math.abs(gotY - wantY);
 		}
 
-		return score;
+		// divide by two because displacing one tile means another tile is also displaced, so the score will have been
+		// incremented twice
+		return score / 2;
 	}
 
 	/**
