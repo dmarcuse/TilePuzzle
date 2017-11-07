@@ -17584,8 +17584,75 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
 //# sourceMappingURL=PuzzleMap.js.map
 
 /**
- * A set of puzzles backed internally by a HashPuzzleMap
+ * A list implementation backed by arrays
  */
+class ArrayList {
+    constructor(values) {
+        this.arrays = [];
+        (values || []).forEach(e => this.append(e));
+    }
+    get length() {
+        return this.arrays.reduce((a, b) => a + b.length, 0);
+    }
+    getIndices(i) {
+        let j = 0;
+        while (i >= this.arrays[j].length) {
+            i -= this.arrays[j].length;
+            j++;
+        }
+        return [j, i];
+    }
+    get(i) {
+        const [j, k] = this.getIndices(i);
+        return this.arrays[j][k];
+    }
+    set(i, value) {
+        const [j, k] = this.getIndices(i);
+        this.arrays[j][k] = value;
+    }
+    remove(i) {
+        const [j, k] = this.getIndices(i);
+        let [got] = this.arrays[j].splice(k, 1);
+        if (this.arrays[j].length == 0) {
+            this.arrays.splice(j, 1);
+        }
+        return got;
+    }
+    append(value) {
+        if (this.arrays.length == 0) {
+            this.arrays[0] = [value];
+        }
+        else {
+            const j = this.arrays.length - 1;
+            const a = this.arrays[j];
+            a.push(value);
+            if (a.length > ArrayList.MAX_SIZE) {
+                const split = a.length / 2;
+                let b = a.splice(Math.floor(split), Math.ceil(split));
+                this.arrays.splice(j + 1, 0, b);
+            }
+        }
+    }
+    insert(i, value) {
+        if (this.arrays.length == 0) {
+            this.arrays[0] = [value];
+        }
+        else if (i >= this.length) {
+            this.append(value);
+        }
+        else {
+            const [j, k] = this.getIndices(i);
+            this.arrays[j].splice(k, 0, value);
+        }
+    }
+}
+/**
+ * Max number of items in each array
+ * @type {number}
+ */
+ArrayList.MAX_SIZE = 50;
+//# sourceMappingURL=List.js.map
+
 class HashPuzzleSet {
     constructor(puzzles) {
         this.map = new HashPuzzleMap();
@@ -17610,19 +17677,34 @@ class HashPuzzleSet {
 class SortedHashPuzzleSet {
     constructor(quantifier, puzzles) {
         this.hashes = {};
-        this.puzzles = [];
+        this.puzzles = new ArrayList();
         this.quantifier = quantifier;
-        this.puzzles = lodash.sortBy(puzzles, p => quantifier(p));
-        this.puzzles.forEach(p => this.hashes[p.hash()] = true);
+        (puzzles || []).forEach(p => this.add(p));
     }
     contains(p) {
         return p.hash() in this.hashes;
     }
+    sortedIndexBy(p) {
+        let low = 0;
+        let high = this.puzzles.length;
+        const value = this.quantifier(p);
+        while (low < high) {
+            const mid = Math.floor((low + high) / 2);
+            const computed = this.quantifier(this.puzzles.get(mid));
+            if (computed < value) {
+                low = mid + 1;
+            }
+            else {
+                high = mid;
+            }
+        }
+        return high;
+    }
     add(p) {
         if (this.contains(p))
             return false;
-        const i = lodash.sortedIndexBy(this.puzzles, p, this.quantifier);
-        this.puzzles.splice(i, 0, p);
+        const i = this.sortedIndexBy(p);
+        this.puzzles.insert(i, p);
         this.hashes[p.hash()] = true;
         return true;
     }
@@ -17630,28 +17712,29 @@ class SortedHashPuzzleSet {
         if (this.contains(p)) {
             const hash = p.hash();
             let i;
-            if (this.puzzles[0].equals(p)) {
+            if (this.puzzles.get(0).equals(p)) {
                 // sometimes elements end up at the start for some reason?
                 i = 0;
             }
             else {
-                i = Math.max(0, lodash.sortedIndexBy(this.puzzles, p, this.quantifier) - 1);
-                while (!this.puzzles[i].equals(p))
+                i = Math.max(0, this.sortedIndexBy(p) - 1);
+                while (!this.puzzles.get(i).equals(p))
                     i++;
             }
-            this.puzzles.splice(i, 1);
+            this.puzzles.remove(i);
             delete this.hashes[hash];
             return true;
         }
         return false;
     }
     first() {
-        return this.puzzles[0];
+        return this.puzzles.get(0);
     }
     get length() {
         return this.puzzles.length;
     }
 }
+//# sourceMappingURL=PuzzleSet.js.map
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
@@ -17720,7 +17803,6 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
-//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(tbl) {
     let styleSelector = document.querySelector("#style");
