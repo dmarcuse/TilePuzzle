@@ -75,9 +75,15 @@ export class SortedHashPuzzleSet implements PuzzleSet {
 	public remove(p: Puzzle): boolean {
 		if (this.contains(p)) {
 			const hash = p.hash();
-			let i = _.sortedLastIndexBy(this.puzzles, p, this.quantifier) - 1;
 
-			while (!this.puzzles[i].equals(p)) i--;
+			let i: number;
+			if (this.puzzles[0].equals(p)) {
+				// sometimes elements end up at the start for some reason?
+				i = 0;
+			}  else {
+				i = Math.max(0, _.sortedIndexBy(this.puzzles, p, this.quantifier) - 1);
+				while (!this.puzzles[i].equals(p)) i++;
+			}
 
 			this.puzzles.splice(i, 1);
 			delete this.hashes[hash];
