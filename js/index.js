@@ -17343,6 +17343,9 @@ var Moves;
 })(Moves || (Moves = {}));
 //# sourceMappingURL=Puzzle.js.map
 
+/**
+ * A subclass of Puzzle that renders as HTML
+ */
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
         super(a);
@@ -17477,7 +17480,6 @@ class HTMLPuzzle extends Puzzle {
         }
     }
 }
-//# sourceMappingURL=HTMLPuzzle.js.map
 
 const numerals = [
     [10, "X"],
@@ -17711,6 +17713,7 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
+//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(tbl) {
     let styleSelector = document.querySelector("#style");
