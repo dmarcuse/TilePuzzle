@@ -1,14 +1,26 @@
 export interface List<T> {
 	get(i: number): T;
+
 	set(i: number, value: T): void;
+
 	append(value: T): void;
+
 	insert(i: number, value: T): void;
+
 	remove(i: number): T;
+
 	length: number;
 }
 
+/**
+ * A list implementation backed by arrays
+ */
 export class ArrayList<T> implements List<T> {
-	public static readonly MAX_SIZE = 100;
+	/**
+	 * Max number of items in each array
+	 * @type {number}
+	 */
+	public static readonly MAX_SIZE = 50;
 
 	protected arrays: T[][];
 
@@ -18,7 +30,7 @@ export class ArrayList<T> implements List<T> {
 	}
 
 	public get length(): number {
-		return this.arrays.reduce((a,b) => a + b.length, 0);
+		return this.arrays.reduce((a, b) => a + b.length, 0);
 	}
 
 	public getIndices(i: number): [number, number] {
@@ -27,7 +39,7 @@ export class ArrayList<T> implements List<T> {
 			i -= this.arrays[j].length;
 			j++;
 		}
-		return [j,i];
+		return [j, i];
 	}
 
 	public get(i: number): T {
@@ -55,7 +67,7 @@ export class ArrayList<T> implements List<T> {
 	}
 
 	public append(value: T): void {
-		if (this.arrays.length = 0) {
+		if (this.arrays.length == 0) {
 			this.arrays[0] = [value];
 		} else {
 			const j = this.arrays.length - 1;
@@ -71,6 +83,14 @@ export class ArrayList<T> implements List<T> {
 	}
 
 	public insert(i: number, value: T): void {
-		
+		if (this.arrays.length == 0) {
+			this.arrays[0] = [value];
+		} else if (i >= this.length) {
+			this.append(value);
+		} else {
+			const [j, k] = this.getIndices(i);
+
+			this.arrays[j].splice(k, 0, value);
+		}
 	}
 }

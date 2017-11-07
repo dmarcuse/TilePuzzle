@@ -1,6 +1,7 @@
 import {Puzzle} from "Puzzle";
 import {HashPuzzleMap} from "./PuzzleMap";
-import _ from "lodash";
+import {ArrayList} from "./List";
+//import _ from "lodash";
 
 /**
  * A base interface for a set of puzzles
@@ -49,24 +50,42 @@ export class HashPuzzleSet implements PuzzleSet {
  */
 export class SortedHashPuzzleSet implements PuzzleSet {
 	protected hashes: { [hash: string]: boolean } = {};
-	protected puzzles: Puzzle[] = [];
+	protected puzzles: ArrayList<Puzzle> = new ArrayList();
 	protected quantifier: (p: Puzzle) => number;
 
 	public constructor(quantifier: (p: Puzzle) => number, puzzles?: Puzzle[]) {
 		this.quantifier = quantifier;
-		this.puzzles = _.sortBy(puzzles, p => quantifier(p));
-		this.puzzles.forEach(p => this.hashes[p.hash()] = true);
+		(puzzles || []).forEach(p => this.add(p));
 	}
 
 	public contains(p: Puzzle): boolean {
 		return p.hash() in this.hashes;
 	}
 
+	protected sortedIndexBy(p: Puzzle): number {
+		let low = 0;
+		let high = this.puzzles.length;
+		const value = this.quantifier(p);
+
+		while (low < high) {
+			const mid = Math.floor((low + high) / 2);
+			const computed = this.quantifier(this.puzzles.get(mid));
+
+			if (computed < value) {
+				low = mid + 1;
+			} else {
+				high = mid;
+			}
+		}
+
+		return high;
+	}
+
 	public add(p: Puzzle): boolean {
 		if (this.contains(p)) return false;
 
-		const i = _.sortedIndexBy(this.puzzles, p, this.quantifier);
-		this.puzzles.splice(i, 0, p);
+		const i = this.sortedIndexBy(p);
+		this.puzzles.insert(i, p);
 		this.hashes[p.hash()] = true;
 
 		return true;
@@ -77,15 +96,15 @@ export class SortedHashPuzzleSet implements PuzzleSet {
 			const hash = p.hash();
 
 			let i: number;
-			if (this.puzzles[0].equals(p)) {
+			if (this.puzzles.get(0).equals(p)) {
 				// sometimes elements end up at the start for some reason?
 				i = 0;
 			}  else {
-				i = Math.max(0, _.sortedIndexBy(this.puzzles, p, this.quantifier) - 1);
-				while (!this.puzzles[i].equals(p)) i++;
+				i = Math.max(0, this.sortedIndexBy(p) - 1);
+				while (!this.puzzles.get(i).equals(p)) i++;
 			}
 
-			this.puzzles.splice(i, 1);
+			this.puzzles.remove(i);
 			delete this.hashes[hash];
 
 			return true;
@@ -95,7 +114,7 @@ export class SortedHashPuzzleSet implements PuzzleSet {
 	}
 
 	public first(): Puzzle {
-		return this.puzzles[0];
+		return this.puzzles.get(0);
 	}
 
 	public get length(): number {
