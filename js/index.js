@@ -17615,7 +17615,10 @@ class SortedHashPuzzleSet {
     remove(p) {
         if (this.contains(p)) {
             const hash = p.hash();
-            lodash.remove(this.puzzles, it => it.equals(p));
+            let i = lodash.sortedLastIndexBy(this.puzzles, p, this.quantifier) - 1;
+            while (!this.puzzles[i].equals(p))
+                i--;
+            this.puzzles.splice(i, 1);
             delete this.locations[hash];
             return true;
         }
@@ -17665,7 +17668,7 @@ function solve(start) {
             if (current.isSolved()) {
                 // solution found
                 let solution = reconstructPath(cameFrom, cameFromMoves, current);
-                console.log(`Solution (length ${solution.length}) found after ${ops} operations`);
+                console.log(`Solution (length ${solution.length}) found after ${ops} ops, ${lodash.now() - startTime} ms`);
                 return solution;
             }
             openSet.remove(current);
@@ -17685,7 +17688,7 @@ function solve(start) {
                 if (!openSet.contains(neighbor))
                     openSet.add(neighbor); // discovered a new node
             }
-            if (ops % 100 == 0) {
+            if (ops % 500 == 0) {
                 console.log(`Solving, ${ops} operations`);
                 if (lodash.now() - startTime > 5 * 1000) {
                     throw new Error(`Solve failed - maximum time exceeded (${ops} ops, ${lodash.now() - startTime} ms)`);
@@ -17748,7 +17751,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
     document.querySelector("#solvebtn").addEventListener("click", () => solve(p)
         .then(m => p.applyMoves(m))
-        .catch(e => alert(e)));
+        .catch(e => {
+        alert(e);
+        console.log(e);
+    }));
     // puzzle should start shuffled
     window.setTimeout(() => p.shuffle(50), 750);
 });
