@@ -49,7 +49,7 @@ export async function solve(start: Puzzle): Promise<Moves[]> {
 		if (current.isSolved()) {
 			// solution found
 			let solution = reconstructPath(cameFrom, cameFromMoves, current);
-			console.log(`Solution (length ${solution.length}) found after ${ops} operations`);
+			console.log(`Solution (length ${solution.length}) found after ${ops} ops, ${_.now() - startTime} ms`);
 			return solution
 		}
 
@@ -74,7 +74,7 @@ export async function solve(start: Puzzle): Promise<Moves[]> {
 			if (!openSet.contains(neighbor)) openSet.add(neighbor); // discovered a new node
 		}
 
-		if (ops % 100 == 0) {
+		if (ops % 500 == 0) {
 			console.log(`Solving, ${ops} operations`);
 
 			if (_.now() - startTime > 5 * 1000) {

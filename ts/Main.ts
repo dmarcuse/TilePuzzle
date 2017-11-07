@@ -59,7 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	document.querySelector("#solvebtn").addEventListener("click", () => solve(p)
 		.then(m => p.applyMoves(m))
-		.catch(e => alert(e)));
+		.catch(e => {
+			alert(e);
+			console.log(e);
+		}));
 
 	// puzzle should start shuffled
 	window.setTimeout(() => p.shuffle(50), 750);

@@ -140,7 +140,11 @@ export class SortedHashPuzzleSet implements PuzzleSet {
 	public remove(p: Puzzle): boolean {
 		if (this.contains(p)) {
 			const hash = p.hash();
-			_.remove(this.puzzles, it => it.equals(p));
+			let i = _.sortedLastIndexBy(this.puzzles, p, this.quantifier) - 1;
+
+			while (!this.puzzles[i].equals(p)) i--;
+
+			this.puzzles.splice(i, 1);
 			delete this.locations[hash];
 
 			return true;
