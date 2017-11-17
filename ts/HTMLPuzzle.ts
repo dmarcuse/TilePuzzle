@@ -47,13 +47,13 @@ export class HTMLPuzzle extends Puzzle {
 		return () => {
 			let pe = this.findTile(0);
 
-			if (pe.x == p.x && pe.y == p.y + 1 && this.canMove(Moves.UP)) {
+			if (pe.x === p.x && pe.y === p.y + 1 && this.canMove(Moves.UP)) {
 				this.userMove(Moves.UP);
-			} else if (pe.x == pe.x && pe.y == p.y - 1 && this.canMove(Moves.DOWN)) {
+			} else if (pe.x === p.x && pe.y === p.y - 1 && this.canMove(Moves.DOWN)) {
 				this.userMove(Moves.DOWN);
-			} else if (pe.x == p.x + 1 && pe.y == p.y && this.canMove(Moves.LEFT)) {
+			} else if (pe.x === p.x + 1 && pe.y === p.y && this.canMove(Moves.LEFT)) {
 				this.userMove(Moves.LEFT);
-			} else if (pe.x == p.x - 1 && pe.y == p.y && this.canMove(Moves.RIGHT)) {
+			} else if (pe.x === p.x - 1 && pe.y === p.y && this.canMove(Moves.RIGHT)) {
 				this.userMove(Moves.RIGHT);
 			}
 		};
