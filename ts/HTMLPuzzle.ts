@@ -1,6 +1,12 @@
 import {Moves, Point, Puzzle} from "Puzzle";
 import _ from "lodash";
 
+export interface HTMLPuzzleListener {
+	solved(): void;
+
+	moved(m: Moves): void;
+}
+
 /**
  * A subclass of Puzzle that renders as HTML
  */
@@ -16,6 +22,8 @@ export class HTMLPuzzle extends Puzzle {
 	 */
 	protected inputBlocked = false;
 
+	protected listeners: HTMLPuzzleListener[] = [];
+
 	public constructor(root: Element, a: number[] | number) {
 		super(a);
 		this.root = root;
@@ -26,6 +34,13 @@ export class HTMLPuzzle extends Puzzle {
 	 */
 	protected clear() {
 		while (this.root.childElementCount > 0) this.root.removeChild(this.root.lastChild);
+	}
+
+	public move(m: Moves) {
+		super.move(m);
+		this.listeners.forEach(l => l.moved(m));
+
+		if (this.isSolved()) this.listeners.forEach(l => l.solved());
 	}
 
 	/**
@@ -158,5 +173,9 @@ export class HTMLPuzzle extends Puzzle {
 		} else {
 			this.inputBlocked = false;
 		}
+	}
+
+	public addListener(l: HTMLPuzzleListener) {
+		this.listeners.push(l);
 	}
 }

@@ -17343,9 +17343,6 @@ var Moves;
 })(Moves || (Moves = {}));
 //# sourceMappingURL=Puzzle.js.map
 
-/**
- * A subclass of Puzzle that renders as HTML
- */
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
         super(a);
@@ -17354,6 +17351,7 @@ class HTMLPuzzle extends Puzzle {
          * @type {boolean}
          */
         this.inputBlocked = false;
+        this.listeners = [];
         this.root = root;
     }
     /**
@@ -17362,6 +17360,12 @@ class HTMLPuzzle extends Puzzle {
     clear() {
         while (this.root.childElementCount > 0)
             this.root.removeChild(this.root.lastChild);
+    }
+    move(m) {
+        super.move(m);
+        this.listeners.forEach(l => l.moved(m));
+        if (this.isSolved())
+            this.listeners.forEach(l => l.solved());
     }
     /**
      * Applies a move if input is not blocked
@@ -17479,7 +17483,11 @@ class HTMLPuzzle extends Puzzle {
             this.inputBlocked = false;
         }
     }
+    addListener(l) {
+        this.listeners.push(l);
+    }
 }
+//# sourceMappingURL=HTMLPuzzle.js.map
 
 const numerals = [
     [10, "X"],
@@ -17831,6 +17839,67 @@ function newPuzzle(root) {
 document.addEventListener("DOMContentLoaded", () => {
     let p = newPuzzle(document.querySelector("div#puzzle"));
     p.render();
+    function disableTimedMode() {
+        document.querySelectorAll("#shufflebtn, #solvebtn, #timedbtn").forEach(b => b.removeAttribute("disabled"));
+        document.querySelector("#timedbtn").innerHTML = "Timed Mode";
+    }
+    function reset() {
+        disableTimedMode();
+        p = newPuzzle(p.root.parentElement);
+        p.render();
+    }
+    // timestamp for the first move in timed mode
+    let timedModeStart;
+    // shuffles board, sets up timed mode
+    function enableTimedMode() {
+        reset();
+        p.shuffle(50);
+        document.querySelectorAll("#shufflebtn, #solvebtn, #timedbtn").forEach(b => b.setAttribute("disabled", "disabled"));
+        document.querySelector("#timedbtn").innerHTML = "0.00";
+        let timer;
+        function startTimer() {
+            timer = window.setInterval(() => {
+                document.querySelector("#timedbtn").innerHTML = ((lodash.now() - timedModeStart) / 1000).toFixed(2);
+            }, 10);
+        }
+        function stopTimer() {
+            window.clearInterval(timer);
+        }
+        timedModeStart = -1;
+        p.addListener({
+            moved(_m) {
+                // only start the clock when the user moves the first piece
+                if (timedModeStart === -1) {
+                    timedModeStart = lodash.now();
+                    startTimer();
+                }
+            },
+            solved() {
+                stopTimer();
+                disableTimedMode();
+                const secsTaken = ((lodash.now() - timedModeStart) / 1000);
+                const n = p.sizeSq - 1; // n-puzzle
+                if (p.size in localStorage) {
+                    // previously recorded time
+                    const prevBest = parseFloat(localStorage[p.size]);
+                    if (secsTaken < prevBest) {
+                        // beat previous best
+                        window.setTimeout(() => alert(`New record: ${secsTaken} seconds to solve the ${n}-puzzle! Previous record: ${prevBest} seconds.`), 500);
+                        localStorage[p.size] = secsTaken.toFixed(2);
+                    }
+                    else {
+                        // didn't beat previous best
+                        window.setTimeout(() => alert(`Time taken: ${secsTaken} seconds to solve the ${n}-puzzle. Record: ${prevBest} seconds.`), 500);
+                    }
+                }
+                else {
+                    // no previously recorded time
+                    window.setTimeout(() => alert(`New record: ${secsTaken} seconds to solve the ${n}-puzzle!`), 500);
+                    localStorage[p.size] = secsTaken.toFixed(2);
+                }
+            }
+        });
+    }
     document.body.addEventListener("keydown", e => {
         switch (e.key) {
             case "ArrowDown":
@@ -17851,24 +17920,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 break;
         }
     });
-    function reset() {
-        p = newPuzzle(p.root.parentElement);
-        p.render();
-    }
     document.querySelector("#resetbtn").addEventListener("click", reset);
     document.querySelector("#style").addEventListener("change", reset);
     document.querySelector("#size").addEventListener("change", reset);
     document.querySelector("#shufflebtn").addEventListener("click", () => p.shuffle(50));
+    document.querySelector("#timedbtn").addEventListener("click", enableTimedMode);
     document.querySelector("#solvebtn").addEventListener("click", () => solve(p)
         .then(m => p.applyMoves(m))
         .catch(e => {
         alert(e);
         console.log(e);
     }));
+    window.cheat = () => solve(p).then(m => p.applyMoves(m)).catch(console.log);
     // puzzle should start shuffled
     window.setTimeout(() => p.shuffle(50), 750);
 });
-//# sourceMappingURL=Main.js.map
 
 }());
 //# sourceMappingURL=index.js.map
