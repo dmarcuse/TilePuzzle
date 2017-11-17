@@ -17097,9 +17097,6 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
-/**
- * Represents a square sliding tile puzzle of variable size
- */
 class Puzzle {
     /**
      * Size squared
@@ -17344,6 +17341,7 @@ var Moves;
     Moves[Moves["RIGHT"] = 2] = "RIGHT";
     Moves[Moves["LEFT"] = 3] = "LEFT";
 })(Moves || (Moves = {}));
+//# sourceMappingURL=Puzzle.js.map
 
 /**
  * A subclass of Puzzle that renders as HTML
@@ -17382,16 +17380,16 @@ class HTMLPuzzle extends Puzzle {
     generateListener(p) {
         return () => {
             let pe = this.findTile(0);
-            if (pe.x == p.x && pe.y == p.y + 1 && this.canMove(Moves.UP)) {
+            if (pe.x === p.x && pe.y === p.y + 1 && this.canMove(Moves.UP)) {
                 this.userMove(Moves.UP);
             }
-            else if (pe.x == pe.x && pe.y == p.y - 1 && this.canMove(Moves.DOWN)) {
+            else if (pe.x === p.x && pe.y === p.y - 1 && this.canMove(Moves.DOWN)) {
                 this.userMove(Moves.DOWN);
             }
-            else if (pe.x == p.x + 1 && pe.y == p.y && this.canMove(Moves.LEFT)) {
+            else if (pe.x === p.x + 1 && pe.y === p.y && this.canMove(Moves.LEFT)) {
                 this.userMove(Moves.LEFT);
             }
-            else if (pe.x == p.x - 1 && pe.y == p.y && this.canMove(Moves.RIGHT)) {
+            else if (pe.x === p.x - 1 && pe.y === p.y && this.canMove(Moves.RIGHT)) {
                 this.userMove(Moves.RIGHT);
             }
         };
@@ -17508,6 +17506,7 @@ class RomanPuzzle extends HTMLPuzzle {
         return getRomanNumeral(t);
     }
 }
+//# sourceMappingURL=RomanPuzzle.js.map
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -17584,6 +17583,7 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
         return got;
     }
 }
+//# sourceMappingURL=PuzzleMap.js.map
 
 /**
  * A list implementation backed by arrays
@@ -17653,10 +17653,8 @@ class ArrayList {
  * @type {number}
  */
 ArrayList.MAX_SIZE = 50;
+//# sourceMappingURL=List.js.map
 
-/**
- * A set of puzzles backed internally by a HashPuzzleMap
- */
 class HashPuzzleSet {
     constructor(puzzles) {
         this.map = new HashPuzzleMap();
@@ -17738,6 +17736,7 @@ class SortedHashPuzzleSet {
         return this.puzzles.length;
     }
 }
+//# sourceMappingURL=PuzzleSet.js.map
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
@@ -17806,6 +17805,7 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
+//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(root) {
     while (root.children.length > 0)
@@ -17868,6 +17868,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // puzzle should start shuffled
     window.setTimeout(() => p.shuffle(50), 750);
 });
+//# sourceMappingURL=Main.js.map
 
 }());
 //# sourceMappingURL=index.js.map
