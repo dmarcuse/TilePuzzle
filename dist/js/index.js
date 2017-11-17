@@ -17839,7 +17839,10 @@ function newPuzzle(root) {
 document.addEventListener("DOMContentLoaded", () => {
     let p = newPuzzle(document.querySelector("div#puzzle"));
     p.render();
+    // handle of interval used for stopwatch in timed mode
+    let timer;
     function disableTimedMode() {
+        window.clearInterval(timer);
         document.querySelectorAll("#shufflebtn, #solvebtn, #timedbtn").forEach(b => b.removeAttribute("disabled"));
         document.querySelector("#timedbtn").innerHTML = "Timed Mode";
     }
@@ -17856,7 +17859,6 @@ document.addEventListener("DOMContentLoaded", () => {
         p.shuffle(50);
         document.querySelectorAll("#shufflebtn, #solvebtn, #timedbtn").forEach(b => b.setAttribute("disabled", "disabled"));
         document.querySelector("#timedbtn").innerHTML = "0.00";
-        let timer;
         function startTimer() {
             timer = window.setInterval(() => {
                 document.querySelector("#timedbtn").innerHTML = ((lodash.now() - timedModeStart) / 1000).toFixed(2);
