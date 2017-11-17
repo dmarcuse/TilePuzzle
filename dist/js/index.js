@@ -17097,6 +17097,9 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
+/**
+ * Represents a square sliding tile puzzle of variable size
+ */
 class Puzzle {
     /**
      * Size squared
@@ -17341,8 +17344,10 @@ var Moves;
     Moves[Moves["RIGHT"] = 2] = "RIGHT";
     Moves[Moves["LEFT"] = 3] = "LEFT";
 })(Moves || (Moves = {}));
-//# sourceMappingURL=Puzzle.js.map
 
+/**
+ * A subclass of Puzzle that renders as HTML
+ */
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
         super(a);
@@ -17477,7 +17482,6 @@ class HTMLPuzzle extends Puzzle {
         }
     }
 }
-//# sourceMappingURL=HTMLPuzzle.js.map
 
 const numerals = [
     [10, "X"],
@@ -17504,7 +17508,6 @@ class RomanPuzzle extends HTMLPuzzle {
         return getRomanNumeral(t);
     }
 }
-//# sourceMappingURL=RomanPuzzle.js.map
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -17581,7 +17584,6 @@ class PuzzleMapWithDefault extends HashPuzzleMap {
         return got;
     }
 }
-//# sourceMappingURL=PuzzleMap.js.map
 
 /**
  * A list implementation backed by arrays
@@ -17651,8 +17653,10 @@ class ArrayList {
  * @type {number}
  */
 ArrayList.MAX_SIZE = 50;
-//# sourceMappingURL=List.js.map
 
+/**
+ * A set of puzzles backed internally by a HashPuzzleMap
+ */
 class HashPuzzleSet {
     constructor(puzzles) {
         this.map = new HashPuzzleMap();
@@ -17734,7 +17738,6 @@ class SortedHashPuzzleSet {
         return this.puzzles.length;
     }
 }
-//# sourceMappingURL=PuzzleSet.js.map
 
 function reconstructPath(cameFrom, cameFromMoves, current) {
     let totalPath = [];
@@ -17804,7 +17807,10 @@ function solve(start) {
     });
 }
 
-function newPuzzle(tbl) {
+function newPuzzle(root) {
+    while (root.children.length > 0)
+        root.removeChild(root.children[0]);
+    let container = document.createElement("div");
     let styleSelector = document.querySelector("#style");
     let style = styleSelector.options[styleSelector.selectedIndex].value;
     let sizeSelector = document.querySelector("#size");
@@ -17812,13 +17818,14 @@ function newPuzzle(tbl) {
     let p;
     switch (style) {
         case "roman":
-            p = new RomanPuzzle(tbl, size);
+            p = new RomanPuzzle(container, size);
             break;
         case "standard":
         default:
-            p = new HTMLPuzzle(tbl, size);
+            p = new HTMLPuzzle(container, size);
             break;
     }
+    root.appendChild(container);
     return p;
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -17845,7 +17852,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
     function reset() {
-        p = newPuzzle(p.root);
+        p = newPuzzle(p.root.parentElement);
         p.render();
     }
     document.querySelector("#resetbtn").addEventListener("click", reset);
@@ -17861,7 +17868,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // puzzle should start shuffled
     window.setTimeout(() => p.shuffle(50), 750);
 });
-//# sourceMappingURL=Main.js.map
 
 }());
 //# sourceMappingURL=index.js.map

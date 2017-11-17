@@ -3,7 +3,11 @@ import {HTMLPuzzle} from "HTMLPuzzle";
 import {RomanPuzzle} from "RomanPuzzle";
 import {solve} from "PuzzleSolver";
 
-function newPuzzle(tbl: Element): HTMLPuzzle {
+function newPuzzle(root: Element): HTMLPuzzle {
+	while (root.children.length > 0) root.removeChild(root.children[0]);
+
+	let container = document.createElement("div");
+
 	let styleSelector = document.querySelector("#style") as HTMLSelectElement;
 	let style = styleSelector.options[styleSelector.selectedIndex].value;
 
@@ -14,13 +18,15 @@ function newPuzzle(tbl: Element): HTMLPuzzle {
 	let p: HTMLPuzzle;
 	switch (style) {
 		case "roman":
-			p = new RomanPuzzle(tbl, size);
+			p = new RomanPuzzle(container, size);
 			break;
 		case "standard":
 		default:
-			p = new HTMLPuzzle(tbl, size);
+			p = new HTMLPuzzle(container, size);
 			break;
 	}
+
+	root.appendChild(container);
 
 	return p;
 }
@@ -47,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	function reset() {
-		p = newPuzzle(p.root);
+		p = newPuzzle(p.root.parentElement);
 		p.render();
 	}
 
