@@ -277,10 +277,15 @@ export class Puzzle {
 
 	/**
 	 * Generates a unique value for this puzzle state
-	 * @returns {string}
+	 * @returns {number}
 	 */
-	public hash(): string {
-		return this.tiles.toString();
+	public hash() {
+		let hash = 0;
+
+		for (let t of this.tiles)
+			hash = ((hash << 5) - hash) + t;
+
+		return hash | 0;
 	}
 }
 

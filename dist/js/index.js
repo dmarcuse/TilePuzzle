@@ -17097,6 +17097,9 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
+/**
+ * Represents a square sliding tile puzzle of variable size
+ */
 class Puzzle {
     /**
      * Size squared
@@ -17332,10 +17335,13 @@ class Puzzle {
     }
     /**
      * Generates a unique value for this puzzle state
-     * @returns {string}
+     * @returns {number}
      */
     hash() {
-        return this.tiles.toString();
+        let hash = 0;
+        for (let t of this.tiles)
+            hash = ((hash << 5) - hash) + t;
+        return hash | 0;
     }
 }
 var Moves;
@@ -17345,7 +17351,6 @@ var Moves;
     Moves[Moves["RIGHT"] = 2] = "RIGHT";
     Moves[Moves["LEFT"] = 3] = "LEFT";
 })(Moves || (Moves = {}));
-//# sourceMappingURL=Puzzle.js.map
 
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
