@@ -7,11 +7,12 @@ export class Puzzle {
 	/**
 	 * The tiles (as a flattened array) of this puzzle
 	 */
-	public readonly tiles: number[];
+	//public readonly tiles: number[];
+	public readonly tiles: Int8Array;
 
 	/**
 	 * The size (side length) of this puzzle
-	 */
+	 */ 
 	public readonly size: number;
 
 	/**
@@ -22,18 +23,17 @@ export class Puzzle {
 		return this.size * this.size;
 	}
 
-	public constructor(a: number[] | number) {
+	public constructor(a: ArrayLike<number> | number) {
 		if (typeof(a) == "number") {
 			this.size = a;
-			this.tiles = [];
+			this.tiles = new Int8Array(a*a);
 
 			for (let i = 0; i < this.sizeSq; i++) {
 				this.tiles[i] = (i + 1) % (this.sizeSq);
 			}
 		} else {
 			this.size = Math.sqrt(a.length);
-			this.tiles = [];
-			this.tiles.unshift(...a);
+			this.tiles = new Int8Array(a);
 		}
 	}
 
