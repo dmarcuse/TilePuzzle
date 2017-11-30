@@ -17097,6 +17097,9 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
+/**
+ * Represents a square sliding tile puzzle of variable size
+ */
 class Puzzle {
     /**
      * Size squared
@@ -17108,15 +17111,14 @@ class Puzzle {
     constructor(a) {
         if (typeof (a) == "number") {
             this.size = a;
-            this.tiles = [];
+            this.tiles = new Int8Array(a * a);
             for (let i = 0; i < this.sizeSq; i++) {
                 this.tiles[i] = (i + 1) % (this.sizeSq);
             }
         }
         else {
             this.size = Math.sqrt(a.length);
-            this.tiles = [];
-            this.tiles.unshift(...a);
+            this.tiles = new Int8Array(a);
         }
     }
     /**
@@ -17348,7 +17350,6 @@ var Moves;
     Moves[Moves["RIGHT"] = 2] = "RIGHT";
     Moves[Moves["LEFT"] = 3] = "LEFT";
 })(Moves || (Moves = {}));
-//# sourceMappingURL=Puzzle.js.map
 
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
@@ -17803,6 +17804,7 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
+//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(root) {
     while (root.children.length > 0)
