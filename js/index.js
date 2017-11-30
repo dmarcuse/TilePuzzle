@@ -17097,9 +17097,6 @@ var lodash = createCommonjsModule(function (module, exports) {
 }.call(commonjsGlobal));
 });
 
-/**
- * Represents a square sliding tile puzzle of variable size
- */
 class Puzzle {
     /**
      * Size squared
@@ -17351,6 +17348,7 @@ var Moves;
     Moves[Moves["RIGHT"] = 2] = "RIGHT";
     Moves[Moves["LEFT"] = 3] = "LEFT";
 })(Moves || (Moves = {}));
+//# sourceMappingURL=Puzzle.js.map
 
 class HTMLPuzzle extends Puzzle {
     constructor(root, a) {
@@ -17672,24 +17670,6 @@ class ArrayList {
 ArrayList.MAX_SIZE = 50;
 //# sourceMappingURL=List.js.map
 
-class HashPuzzleSet {
-    constructor(puzzles) {
-        this.map = new HashPuzzleMap();
-        (puzzles || []).forEach(p => this.map.put(p, true));
-    }
-    contains(p) {
-        return this.map.containsKey(p);
-    }
-    remove(p) {
-        return this.map.remove(p);
-    }
-    add(p) {
-        this.map.put(p, true);
-    }
-    get length() {
-        return this.map.length;
-    }
-}
 /**
  * A sorted set of puzzles using both an array and hash for significant speed benefits
  */
@@ -17772,7 +17752,7 @@ function solve(start) {
         const startTime = lodash.now();
         start = new Puzzle(start.tiles);
         // nodes already evaluated
-        let closedSet = new HashPuzzleSet();
+        let closedSet = {};
         // node => node that it can most easily be reached from
         let cameFrom = new HashPuzzleMap();
         // complementary map, node => move to node it can be most easily reached from
@@ -17795,11 +17775,12 @@ function solve(start) {
                 return solution;
             }
             openSet.remove(current);
-            closedSet.add(current);
+            // closedSet.add(current);
+            closedSet[current.hash()] = true;
             for (let move of current.validMoves()) {
                 const neighbor = new Puzzle(current.tiles);
                 neighbor.move(move);
-                if (closedSet.contains(neighbor))
+                if (neighbor.hash() in closedSet)
                     continue; // ignore already evaluated neighbors
                 let tentativeGScore = gScore.get(current) + 1;
                 if (tentativeGScore > gScore.get(neighbor))
@@ -17822,7 +17803,6 @@ function solve(start) {
         throw new Error(`Solving failed - unsolvable`);
     });
 }
-//# sourceMappingURL=PuzzleSolver.js.map
 
 function newPuzzle(root) {
     while (root.children.length > 0)
