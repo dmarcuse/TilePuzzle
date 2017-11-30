@@ -1,5 +1,5 @@
 import {Puzzle, Moves} from "Puzzle";
-import {HashPuzzleSet, SortedHashPuzzleSet} from "Structures/PuzzleSet";
+import {SortedHashPuzzleSet} from "Structures/PuzzleSet";
 import {HashPuzzleMap, PuzzleMapWithDefault} from "Structures/PuzzleMap";
 import _ from "lodash";
 
@@ -23,7 +23,7 @@ export async function solve(start: Puzzle): Promise<Moves[]> {
 	start = new Puzzle(start.tiles);
 
 	// nodes already evaluated
-	let closedSet = new HashPuzzleSet();
+	let closedSet: {[hash: number]: true} = {};
 
 	// node => node that it can most easily be reached from
 	let cameFrom = new HashPuzzleMap<Puzzle>();
@@ -54,13 +54,14 @@ export async function solve(start: Puzzle): Promise<Moves[]> {
 		}
 
 		openSet.remove(current);
-		closedSet.add(current);
+		// closedSet.add(current);
+		closedSet[current.hash()] = true;
 
 		for (let move of current.validMoves()) {
 			const neighbor = new Puzzle(current.tiles);
 			neighbor.move(move);
 
-			if (closedSet.contains(neighbor)) continue; // ignore already evaluated neighbors
+			if (neighbor.hash() in closedSet) continue; // ignore already evaluated neighbors
 
 			let tentativeGScore = gScore.get(current) + 1;
 
