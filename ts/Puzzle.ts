@@ -244,15 +244,20 @@ export class Puzzle {
 			const gotX = gotI % this.size;
 			const gotY = Math.floor(gotI / this.size);
 
-			//score += Math.sqrt(Math.pow(gotX - wantX, 2) + Math.pow(gotY - wantY, 2));
-
 			// using manhattan distance seems to yield better results than linear distance
-			score += Math.abs(gotX - wantX) + Math.abs(gotY - wantY);
+			const dist = Math.abs(gotX - wantX) + Math.abs(gotY - wantY);
+
+			if (dist > 0) {
+				score += dist;
+
+				if (gotX == wantX || gotY == wantY) {
+					// in conflict with another tile, at least 2 extra moves required
+					score += 2;
+				}
+			}
 		}
 
-		// divide by two because displacing one tile means another tile is also displaced, so the score will have been
-		// incremented twice
-		return score / 2;
+		return score;
 	}
 
 	/**
